@@ -1,7 +1,8 @@
 """
-Spark Streaming - Anomaly Detection with LSTM Autoencoder + XGBoost
+Spark Streaming - Classification with XGBoost + LightGBM
 Project: Real-Time Cryptocurrency Market Manipulation Detection
 Author: Sruthi
+Note: GAT (Graph Attention Network) runs in Neo4j module (Arnav)
 """
 
 import numpy as np
@@ -64,6 +65,6 @@ if __name__ == "__main__":
     print("  SPARK ML PIPELINE - CONFIGURATION")
     print("=" * 50)
     print(f"  Features: {len(FEATURES)}")
-    print(f"  Models:   LSTM Autoencoder + XGBoost + LightGBM")
+    print(f"  Models:   XGBoost + LightGBM (Spark) | GAT (Neo4j)")
     print(f"  Classes:  {list(LABELS.values())}")
     print("  Status:   Ready for training")

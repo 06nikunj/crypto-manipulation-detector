@@ -39,7 +39,6 @@ A **real-time detection system** that identifies cryptocurrency market manipulat
 │         APACHE SPARK STREAMING           │
 │                                          │
 │   ┌──────────────────────────────────┐   │
-│   │  LSTM Autoencoder → Anomaly?     │   │
 │   │  XGBoost → P&D / Wash / Spoof   │   │
 │   │  LightGBM → Telegram Pump?      │   │
 │   └──────────────────────────────────┘   │
@@ -49,6 +48,7 @@ A **real-time detection system** that identifies cryptocurrency market manipulat
 ┌─────────────┐    ┌──────────────┐
 │   NEO4J     │    │  INFLUXDB    │
 │  (Graph DB) │    │ (Time-Series)│
+│  + GAT Model│    │              │
 └──────┬──────┘    └──────┬───────┘
        │                  │
        └────────┬─────────┘
@@ -66,9 +66,9 @@ A **real-time detection system** that identifies cryptocurrency market manipulat
 
 | Model | Purpose | Input |
 |-------|---------|-------|
-| **LSTM Autoencoder** | Anomaly detection — flags abnormal trades | Price, volume, trade frequency |
 | **XGBoost** | Multi-class classification — P&D / Wash Trade / Spoofing / Normal | 12 engineered features |
 | **LightGBM** | Telegram pump signal detection | Message rate, keyword score, urgency |
+| **GAT (Graph Attention Network)** | Learns suspicious wallet patterns from transaction graph | Neo4j wallet-to-wallet edges |
 
 ---
 
