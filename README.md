@@ -1,241 +1,123 @@
-# 🛡️ Real-Time Cryptocurrency Market Manipulation Detection
+# CryptoSentinel — Market Integrity Intelligence
 
-### Using Big Data Graph Streaming Analytics
+CryptoSentinel is a research prototype for **historical pump-and-dump benchmark replay**. It replays the bundled SystemsLab–Sapienza labeled trade chunks in timestamp order, derives rolling features, scores each chunk with the saved XGBoost model, and presents events, alerts, graph relationships, and benchmark evaluation in a Flask-served dashboard.
 
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://python.org)
-[![Kafka](https://img.shields.io/badge/Apache%20Kafka-7.5-red.svg)](https://kafka.apache.org)
-[![Spark](https://img.shields.io/badge/Apache%20Spark-3.5-orange.svg)](https://spark.apache.org)
-[![Neo4j](https://img.shields.io/badge/Neo4j-5.x-green.svg)](https://neo4j.com)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue.svg)](https://docker.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+> **Replay, not live detection.** The default app does not connect to a live exchange or ingest current market data. Replay speed controls only change how quickly historical rows are presented; they do not alter the data or prediction scores.
 
----
+## What is included
 
-## 📌 About
+- Seven dashboard areas: Overview, Stream, Events, Alerts, Graph, Evaluation, and Dataset.
+- Flask JSON API and a responsive, same-origin HTML dashboard.
+- Bundled `labeled_trades.csv`, `pump_events_clean.csv`, and `pump_telegram.csv` benchmark data.
+- Saved XGBoost detector and scaler under `models/`, plus the stored chronological test metrics.
+- An in-memory event graph. It describes market-event relationships; it does **not** represent wallet transactions.
+- Kafka, Spark, Neo4j, and Grafana support files are parts of the broader project layout, but are not required to run the local dashboard demonstration.
 
-A **real-time detection system** that identifies cryptocurrency market manipulation — including **Pump-and-Dump**, **Wash Trading**, and **Spoofing** — by fusing live exchange data with social media signals through a Big Data streaming pipeline and graph analytics.
+## Architecture
 
-> **Key Innovation:** First system to combine real-time streaming, multi-source data fusion, graph-based transaction analysis, and ML classification in a single unified pipeline.
-
----
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐    ┌─────────────────┐
-│  Binance API    │    │  Telegram API   │
-│  (Live Trades)  │    │  (Pump Signals) │
-└───────┬─────────┘    └───────┬─────────┘
-        │                      │
-        ▼                      ▼
-┌──────────────────────────────────────────┐
-│            APACHE KAFKA                  │
-│   topic: market_trades                   │
-│   topic: telegram_signals                │
-└───────────────────┬──────────────────────┘
-                    │
-                    ▼
-┌──────────────────────────────────────────┐
-│         APACHE SPARK STREAMING           │
-│                                          │
-│   ┌──────────────────────────────────┐   │
-│   │  XGBoost → P&D / Wash / Spoof   │   │
-│   │  LightGBM → Telegram Pump?      │   │
-│   └──────────────────────────────────┘   │
-└──────┬───────────────────┬───────────────┘
-       │                   │
-       ▼                   ▼
-┌─────────────┐    ┌──────────────┐
-│   NEO4J     │    │  INFLUXDB    │
-│  (Graph DB) │    │ (Time-Series)│
-│  + GAT Model│    │              │
-└──────┬──────┘    └──────┬───────┘
-       │                  │
-       └────────┬─────────┘
-                ▼
-       ┌────────────────┐
-       │    GRAFANA      │
-       │  (Dashboard)    │
-       │  Live Alerts 🚨 │
-       └────────────────┘
+```text
+Bundled benchmark CSV
+        │ timestamp-ordered replay (5-second observations; adjustable playback multiplier)
+        ▼
+Flask StreamController → rolling feature extraction → saved StandardScaler → XGBoost
+                                                │                │
+                                                ▼                ▼
+                                      event/episode API     in-memory event graph
+                                                │
+                                                ▼
+                                  CryptoSentinel dashboard
 ```
 
----
+The replay preserves source chronology. For each observation, the inference path computes the 12 features used by the project model: `price_change_pct`, `price_std`, `volume`, `volume_change_pct`, `volume_std`, `n_trades`, `trade_freq`, `rush_order_ratio`, `buy_ratio`, `avg_trade_size`, `rolling_volatility`, and `anomaly_score`. Rolling windows include the current chunk and use the same sample-standard-deviation convention as training preprocessing.
 
-## 🤖 ML Models
+Processed/normal/pump-prediction/error counters are distinct. Alert cards group flagged chunks by the dataset's event/window ID, while the graph assigns a separate node to each replayed chunk. Graph edges mean `BELONGS_TO` (event to asset), `NEXT` (consecutive observed chunks for that asset in a replay), and `ORGANIZED_BY` (a benchmark pump event's Telegram group code).
 
-| Model | Purpose | Input |
-|-------|---------|-------|
-| **XGBoost** | Multi-class classification — P&D / Wash Trade / Spoofing / Normal | 12 engineered features |
-| **LightGBM** | Telegram pump signal detection | Message rate, keyword score, urgency |
-| **GAT (Graph Attention Network)** | Learns suspicious wallet patterns from transaction graph | Neo4j wallet-to-wallet edges |
+## Dataset attribution
 
----
+The bundled benchmark is the [SystemsLab–Sapienza Pump-and-Dump Dataset](https://github.com/SystemsLab-Sapienza/pump-and-dump-dataset), associated with:
 
-## 🔍 Manipulation Types Detected
+> M. La Morgia, A. Mei, F. Sassi, and J. Stefa, “Pump and Dumps in the Bitcoin Era: Real Time Detection of Cryptocurrency Market Manipulations,” *2020 29th International Conference on Computer Communications and Networks (ICCCN)*, 2020, pp. 1–9. DOI: [10.1109/ICCCN49398.2020.9209660](https://doi.org/10.1109/ICCCN49398.2020.9209660).
 
-| Type | How We Detect It |
-|------|-----------------|
-| **Pump-and-Dump** | Price spike + volume spike + Telegram signal + hub-spoke graph pattern |
-| **Wash Trading** | Circular wallet transactions (A→B→C→A) detected via Neo4j graph cycles |
-| **Spoofing** | High order cancellation rate + bid-ask spread anomaly |
+The repository's `data/README.md` documents file schemas and original source attribution. Check the upstream repository's current terms before redistributing the benchmark. The provided `labeled_trades.csv` is the project-prepared labeled trade-chunk file; its labels and generated/engineered fields are benchmark data, not a feed of present-day exchange trades.
 
----
+## Limitations and responsible interpretation
 
-## 🛠️ Tech Stack
+- This is a **historical benchmark replay**, not a market-connected live service, execution system, or trading recommendation.
+- Evaluation scores in `models/eval_metrics.json` describe the project's stored chronological benchmark test split only. High benchmark precision/recall/F1/PR-AUC do **not** guarantee accuracy on live markets, other assets, exchanges, time periods, or manipulation strategies; they do not establish profitability.
+- Risk scores are raw XGBoost output probabilities and are not externally calibrated. The default alert threshold is 0.50.
+- The benchmark does not contain wallet addresses. The graph is an event/asset/group graph, not a wallet-to-wallet transaction graph; it cannot substantiate wallet coordination or wash trading.
+- No live Telegram stream, exchange WebSocket, Kafka broker, Neo4j server, or Grafana instance is started by the dashboard command. The related project modules are optional/incomplete integrations for this local demonstration.
+- The graph is an in-memory bounded view (up to 5,000 nodes and 10,000 edges), and the Events API presents the most recent 2,000 in-memory classified rows. Run counters and deduplicated episode totals are process-local and reset when the Flask process restarts.
+- The supplied benchmark metrics are precomputed artifacts; launching the dashboard does not retrain or independently revalidate the model.
 
-| Component | Technology | Role |
-|-----------|-----------|------|
-| Data Ingestion | Apache Kafka | Real-time message streaming |
-| Stream Processing | Apache Spark | ML model inference on live data |
-| Graph Database | Neo4j | Transaction network & cycle detection |
-| Time-Series DB | InfluxDB | Metrics & alert history |
-| Dashboard | Grafana | Real-time visualization & alerts |
-| Language | Python 3.10+ | All backend logic |
-| Containerization | Docker + Docker Compose | One-command deployment |
-| Live Data | Binance WebSocket API | Exchange trade streams |
-| Social Data | Telegram API | Pump group monitoring |
+## Faculty walkthrough: what the dashboard actually does
 
----
+1. **Start Replay** reads the bundled, prepared `labeled_trades.csv` in timestamp order and places historical 5-second observations on the local replay queue. The speed selector changes playback pacing only.
+2. The serving preprocessor computes the model's 12 input features from the current observation and same-symbol rolling history. Ground-truth label fields are not selected as model features.
+3. The saved scaler and XGBoost classifier return a **raw output score**. A score at or above the configured `0.50` threshold is a **model prediction**, not a confirmed manipulation event.
+4. Every flagged 5-second chunk contributes to the flagged-chunk count. Chunks sharing a benchmark `event_id` are deduplicated into one episode card; its `flagged_chunks` value reports the number of flagged chunks in that window.
+5. The graph writer records market-event, asset, and available benchmark group relationships in process memory. It has no wallet-address or transaction data.
+6. Flask serves the actual in-process replay/graph state and the stored test metrics to the dashboard. The Evaluation tab reads `models/eval_metrics.json`; it does not silently rerun training.
 
-## 📁 Project Structure
+**Counter scope:** `Events Processed` is the pipeline's cumulative number of dequeued chunks (including a chunk whose feature/model handling records an exception). `Normal Events` counts chunks predicted `NORMAL`; flagged chunks are counted separately as model predictions. Unique flagged episodes are distinct benchmark event/window IDs, not chunks. The Events explorer date/search/score filters operate on the bounded **most recent 2,000** in-memory event records; they do not query the entire CSV. The graph is also a bounded in-memory view. Replay counters, alert acknowledgments, and graph state reset when the Flask process restarts.
 
-```
-crypto-manipulation-detector/
-│
-├── data/                          # Dataset links & download script
-│   ├── README.md
-│   └── download.py
-│
-├── docs/report/                   # Research paper chapters
-│   ├── chapter1_introduction.md
-│   ├── chapter2_literature_review.md
-│   └── chapter3_methodology.md
-│
-├── backend/
-│   ├── kafka/                     # Kafka producers & consumers
-│   │   ├── binance_producer.py
-│   │   ├── csv_producer.py
-│   │   ├── telegram_producer.py
-│   │   └── test_consumer.py
-│   ├── spark/src/                 # Spark streaming + ML pipeline
-│   │   ├── ingestion.py
-│   │   ├── preprocessing.py
-│   │   ├── anomaly_detection.py
-│   │   ├── classification.py
-│   │   └── graph_builder.py
-│   ├── neo4j/                     # Graph DB config
-│   ├── influxdb/                  # Time-series DB config
-│   └── grafana/                   # Dashboard config
-│
-├── frontend/src/                  # Dashboard UI
-│
-├── scripts/                       # Training & evaluation
-│   ├── train_models.py
-│   ├── evaluate.py
-│   └── run_pipeline.sh
-│
-├── docker-compose.yml             # Full stack deployment
-├── requirements.txt               # Python dependencies
-└── .gitignore
-```
+**For a short presentation:** open Overview and expand **How the data moves through CryptoSentinel**; start a replay; pause/resume it to show the controller; inspect a flagged prediction in Alerts and compare its benchmark label only in the expanded details; then show the confusion matrix and note that benchmark scores are not a live trading guarantee.
 
----
+## Requirements
 
-## 🚀 Quick Start
+- macOS 13+ or a recent Linux distribution.
+- Python 3.12 recommended for the bundled model artifacts and dependency set.
+- Internet access for initial package installation. The benchmark CSVs and model artifacts are already bundled, so the dashboard does not need to download data at startup.
 
-### Prerequisites
-- Python 3.10+
-- Docker Desktop
-- Git
+## Install and start on macOS
 
-### Setup
+From Terminal, after extracting this project archive, run these commands from the project directory (replace the first path with the folder where you extracted it):
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/06nikunj/crypto-manipulation-detector.git
-cd crypto-manipulation-detector
-
-# 2. Install Python dependencies
-pip install -r requirements.txt
-
-# 3. Start all services
-docker compose up -d
-
-# 4. Create Kafka topics
-docker exec kafka kafka-topics --create --topic market_trades --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
-docker exec kafka kafka-topics --create --topic telegram_signals --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
-
-# 5. Train ML models
-python scripts/train_models.py
-
-# 6. Start the streaming pipeline
-bash scripts/run_pipeline.sh
-
-# 7. Open Grafana dashboard
-# Visit: http://localhost:3000 (admin / admin)
+cd "$HOME/Downloads/crypto-manipulation-detector-main"
+python3 --version                 # Python 3.12 recommended
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+PORT=5001 python -m backend.api.app
 ```
 
----
+Keep that Terminal window open. Open **http://127.0.0.1:5001** in a browser. Use **Start Replay** or the Stream tab to start the historical replay; pause, resume, stop, and playback-speed controls are provided there. Stop the process with **Ctrl+C**. In a later Terminal session, restart with:
 
-## 📊 Datasets Used
+```bash
+cd "$HOME/Downloads/crypto-manipulation-detector-main"
+source .venv/bin/activate
+PORT=5001 python -m backend.api.app
+```
 
-> ⚠️ Datasets are **not included** in this repository due to licensing. See [`data/README.md`](data/README.md) for download links.
+The dataset downloader and model trainer are not needed for the bundled demonstration. To intentionally retrain, use `python scripts/train_models.py`; this overwrites the model/scaler and evaluation artifacts, so keep a copy of the supplied artifacts if you need them.
 
-| # | Dataset | Source | Records |
-|---|---------|--------|---------|
-| 1 | Elliptic Bitcoin Dataset | Kaggle | 203K transactions |
-| 2 | P&D Benchmark Dataset | Zenodo | Multi-year events |
-| 3 | Hu et al. Telegram P&D | GitHub (MIT) | 709 events |
-| 4 | Bitcoin Heist Ransomware | UCI / Kaggle | 2.9M addresses |
-| 5 | Crypto Wash Trading | Kaggle | 500K transactions |
-| 6 | Binance Historical OHLCV | CryptoDataDownload | Millions |
-| 7 | Ethereum NFT Wash Trading | Kaggle | NFT records |
-| 8 | Mendeley Wash Trade | Mendeley Data | Labeled trades |
-| 9 | La Morgia P&D Events | GitHub | Telegram + market |
-| 10 | Binance Live API | Binance | Real-time stream |
+## API reference
 
----
+The local service exposes:
 
-## 📈 Expected Results
+- `GET /api/health`
+- `GET /api/stream/status`; `POST /api/stream/start`, `/pause`, `/resume`, `/stop`, `/speed`
+- `GET /api/events` and `/api/events/summary`
+- `GET /api/alerts`, `/api/alerts/episodes`; `POST /api/alerts/episodes/<episode-id>/acknowledge`
+- `GET /api/graph/nodes`, `/suspicious`, `/stats`, `/neighbors/<node-id>`, `/asset/<symbol>`
+- `GET /api/evaluation` and `/api/dataset`
 
-| Metric | Target |
-|--------|--------|
-| Accuracy | > 92% |
-| Precision | > 90% |
-| Recall | > 88% |
-| F1 Score | > 89% |
-| Detection Latency | < 2 seconds |
-| Throughput | > 10,000 trades/sec |
+## Project structure
 
----
+```text
+backend/api/app.py                    Flask routes and dashboard serving
+backend/spark/src/ingestion.py        Historical CSV replay controller
+backend/spark/src/preprocessing.py    Feature engineering and inference features
+backend/spark/src/anomaly_detection.py XGBoost inference, counters, alert episodes
+backend/spark/src/graph_builder.py     In-memory market-event relationship graph
+frontend/index.html                    Seven-tab CryptoSentinel dashboard
+data/pump_dump_dataset/               Bundled benchmark files
+models/                                XGBoost, scaler, stored evaluation metrics
+scripts/                               Training and evaluation utilities
+```
 
-## 📚 Key References
+## Quick verification
 
-1. Kampers et al., *"Manipulation Detection in Cryptocurrency Markets"* — ACM SAC 2022
-2. Hu et al., *"Sequence-Based Target Coin Prediction"* — ACM SIGMOD 2023
-3. Mahrous & Di Pietro, *"PumpSense"* — IEEE ICBC 2026
-4. La Morgia et al., *"The Doge of Wall Street"* — ACM Trans. Web 2023
-
----
-
-## 👥 Team
-
-| Member | Role |
-|--------|------|
-| Aanya | Frontend & Grafana Dashboard |
-| Nikunj | Apache Kafka Backend |
-| Sruthi | Apache Spark + ML Models |
-| Arnav | Neo4j Graph Analytics |
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
----
-
-<p align="center">
-  <b>Built with ❤️ for Big Data Essentials (21CSC314P)</b>
-</p>
+After starting the server, `curl http://127.0.0.1:5001/api/health` should return JSON. The dashboard refreshes the active view from the Flask API; events and alerts are not fabricated when the replay is stopped.

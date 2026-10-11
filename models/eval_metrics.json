@@ -1,0 +1,54 @@
+{
+  "train_size": 67200,
+  "val_size": 14400,
+  "test_size": 14400,
+  "precision": 0.9849,
+  "recall": 0.9886,
+  "f1": 0.9868,
+  "pr_auc": 0.9988,
+  "confusion_matrix": [
+    [
+      13596,
+      12
+    ],
+    [
+      9,
+      783
+    ]
+  ],
+  "feature_cols": [
+    "price_change_pct",
+    "price_std",
+    "volume",
+    "volume_change_pct",
+    "volume_std",
+    "n_trades",
+    "trade_freq",
+    "rush_order_ratio",
+    "buy_ratio",
+    "avg_trade_size",
+    "rolling_volatility",
+    "anomaly_score"
+  ],
+  "class_distribution": {
+    "train_pump_ratio": 0.0496,
+    "test_pump_ratio": 0.055
+  },
+  "model": "XGBoost",
+  "random_seed": 42,
+  "baseline_f1_all_normal": 0.0,
+  "feature_importances": {
+    "price_change_pct": 0.7012,
+    "n_trades": 0.1635,
+    "trade_freq": 0.0403,
+    "rush_order_ratio": 0.031,
+    "rolling_volatility": 0.0208,
+    "price_std": 0.013,
+    "volume_std": 0.0088,
+    "volume": 0.0062,
+    "buy_ratio": 0.006,
+    "avg_trade_size": 0.0044,
+    "anomaly_score": 0.0026,
+    "volume_change_pct": 0.0022
+  }
+}
