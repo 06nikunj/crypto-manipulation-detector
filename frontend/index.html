@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>CryptoSentinel — Market Integrity Intelligence</title>
+<style>
+:root{--white:#fff;--bg:#f0f4f9;--bg2:#e8edf5;--surface:#fff;--surface2:#f8fafd;--navy:#0f1c3f;--navy2:#1a2e5a;--text:#1a2742;--text2:#4a5878;--text3:#7c8ba1;--border:#d6dde8;--border2:#e8edf4;--blue:#2563eb;--blue2:#1d4ed8;--blue3:#3b82f6;--bl:#eff6ff;--blm:#dbeafe;--teal:#0891b2;--teal2:#ecfeff;--green:#059669;--green2:#ecfdf5;--green3:#d1fae5;--red:#dc2626;--red2:#fef2f2;--red3:#fee2e2;--orange:#d97706;--orange2:#fffbeb;--orange3:#fde68a;--purple:#7c3aed;--purple2:#f5f3ff;--sw:220px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;font-size:13px;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+code{font-family:'SF Mono','Fira Code',monospace;background:var(--bg2);padding:2px 6px;border-radius:4px;font-size:11px;color:var(--navy2)}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:var(--sw);background:var(--navy);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200;box-shadow:4px 0 20px rgba(15,28,63,.15)}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:11px}
+.sb-logo-icon{width:34px;height:34px;flex-shrink:0;background:linear-gradient(135deg,#2563eb,#0891b2);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.sb-logo-icon svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sb-name{font-size:14px;font-weight:800;letter-spacing:-.3px;color:#fff}
+.sb-tag{font-size:9px;color:rgba(255,255,255,.45);margin-top:1px;text-transform:uppercase;letter-spacing:.6px}
+.sb-nav{flex:1;padding:8px 0;overflow-y:auto}
+.sb-nav::-webkit-scrollbar{width:0}
+.sb-sec{padding:10px 16px 3px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.28)}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;font-size:12px;font-weight:500;color:rgba(255,255,255,.6);border:none;background:none;width:100%;text-align:left;transition:all .15s;border-right:3px solid transparent}
+.sb-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.sb-item.active{background:rgba(37,99,235,.25);color:#fff;border-right-color:#60a5fa}
+.sb-item svg{width:15px;height:15px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+.sb-item.active svg{opacity:1}
+.sb-badge{margin-left:auto;background:#dc2626;color:#fff;border-radius:9px;padding:1px 6px;font-size:9px;font-weight:700;display:none}
+.sb-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.1);font-size:10px;color:rgba(255,255,255,.35);line-height:1.5}
+.sb-foot a{color:rgba(255,255,255,.55)}
+.topbar{position:fixed;top:0;left:var(--sw);right:0;height:56px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;justify-content:space-between;z-index:100;box-shadow:0 1px 4px rgba(15,28,63,.05)}
+.tb-l{display:flex;align-items:center;gap:12px}
+.pg-title{font-size:15px;font-weight:800;color:var(--navy);letter-spacing:-.3px}
+.pg-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.tb-r{display:flex;align-items:center;gap:10px}
+.conn-pill{display:flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--border);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;color:var(--text2)}
+.cdot{width:7px;height:7px;border-radius:50%;background:#dc2626;flex-shrink:0}
+.cdot.on{background:#059669;animation:breath 2.5s ease-in-out infinite}
+@keyframes breath{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.8);opacity:.55}}
+.replay-pill{display:flex;align-items:center;gap:5px;background:#fffbeb;border:1px solid #fde68a;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;color:#d97706;display:none}
+.rdot{width:7px;height:7px;border-radius:50%;background:#d97706;animation:breath .9s ease-in-out infinite}
+.ts-lbl{font-size:11px;color:var(--text3);font-family:monospace}
+.btn-start-hdr{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;box-shadow:0 1px 4px rgba(37,99,235,.3)}
+.btn-start-hdr svg{width:13px;height:13px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.btn-start-hdr:hover{background:var(--blue2);transform:translateY(-1px);box-shadow:0 3px 10px rgba(37,99,235,.4)}
+.btn-start-hdr:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.content{margin-left:var(--sw);padding-top:56px;min-height:100vh}
+.page{display:none;padding:22px 24px}
+.page.active{display:block}
+.sec-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:12px}
+.sec-title{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.4px}
+.sec-sub{font-size:12px;color:var(--text3);margin-top:3px;max-width:580px;line-height:1.55}
+.sec-acts{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:13px;margin-bottom:20px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(15,28,63,.05);transition:box-shadow .2s,transform .2s;position:relative;overflow:hidden}
+.kpi:hover{box-shadow:0 4px 16px rgba(15,28,63,.09);transform:translateY(-1px)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue);border-radius:10px 10px 0 0}
+.kpi.kgreen::before{background:var(--green)}.kpi.kred::before{background:var(--red)}.kpi.kteal::before{background:var(--teal)}.kpi.korange::before{background:var(--orange)}.kpi.kpurple::before{background:var(--purple)}
+.kpi-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;background:var(--bl)}
+.kpi.kgreen .kpi-ico{background:var(--green2)}.kpi.kred .kpi-ico{background:var(--red2)}.kpi.kteal .kpi-ico{background:var(--teal2)}.kpi.korange .kpi-ico{background:var(--orange2)}.kpi.kpurple .kpi-ico{background:var(--purple2)}
+.kpi-ico svg{width:15px;height:15px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.kpi-ico svg{stroke:var(--blue)}.kpi.kgreen .kpi-ico svg{stroke:var(--green)}.kpi.kred .kpi-ico svg{stroke:var(--red)}.kpi.kteal .kpi-ico svg{stroke:var(--teal)}.kpi.korange .kpi-ico svg{stroke:var(--orange)}.kpi.kpurple .kpi-ico svg{stroke:var(--purple)}
+.kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.55px;color:var(--text3);margin-bottom:5px}
+.kpi-val{font-size:26px;font-weight:900;color:var(--navy);line-height:1;margin-bottom:3px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:10px;color:var(--text3)}
+.card{background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 4px rgba(15,28,63,.05);margin-bottom:14px;overflow:hidden}
+.ch{padding:12px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)}
+.ct{font-size:12px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:7px}
+.ct svg{width:15px;height:15px;fill:none;stroke:var(--blue);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.cb{padding:18px}.cb.np{padding:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g13{display:grid;grid-template-columns:280px 1fr;gap:14px}
+.btn{border:none;cursor:pointer;border-radius:6px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;padding:7px 13px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn-blue{background:var(--blue);color:#fff;box-shadow:0 1px 4px rgba(37,99,235,.25)}.btn-blue:hover:not(:disabled){background:var(--blue2);transform:translateY(-1px)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover:not(:disabled){background:#047857}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover:not(:disabled){background:#b91c1c}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-out{background:#fff;color:var(--text2);border:1px solid var(--border)}.btn-out:hover:not(:disabled){background:var(--bg);border-color:var(--blue);color:var(--blue)}
+.btn-ghost{background:transparent;color:var(--text3)}.btn-ghost:hover:not(:disabled){background:var(--bg2);color:var(--text)}
+.btn-sm{padding:5px 10px;font-size:11px}.btn-xs{padding:3px 8px;font-size:10px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.2px;gap:3px}.b-pred{background:var(--orange2);color:#92400e;border:1px solid var(--orange3)}
+.b-pump{background:var(--red2);color:var(--red);border:1px solid var(--red3)}.b-norm{background:var(--green2);color:var(--green);border:1px solid var(--green3)}.b-run{background:var(--green2);color:var(--green)}.b-stop{background:var(--bg2);color:var(--text3);border:1px solid var(--border)}.b-pause{background:var(--orange2);color:var(--orange)}.b-info{background:var(--bl);color:var(--blue);border:1px solid var(--blm)}
+.rp{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}
+.rph{background:var(--red2);color:var(--red);border:1px solid var(--red3)}.rpm{background:var(--orange2);color:var(--orange)}.rpl{background:var(--green2);color:var(--green);border:1px solid var(--green3)}
+.rb{display:flex;align-items:center;gap:5px}
+.rbt{background:var(--bg2);border-radius:3px;height:5px;overflow:hidden;width:56px;flex-shrink:0}
+.rbf{height:100%;border-radius:3px;background:linear-gradient(90deg,#059669,#d97706 55%,#dc2626)}
+.prog-t{background:var(--bg2);border-radius:4px;height:7px;overflow:hidden}.prog-f{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .5s}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.45px;color:var(--text3);padding:9px 13px;border-bottom:2px solid var(--border2);background:var(--surface2);white-space:nowrap;position:sticky;top:0;z-index:1}
+.tbl td{padding:9px 13px;border-bottom:1px solid var(--border2);font-size:12px;vertical-align:middle}
+.tbl tbody tr:hover td{background:var(--bl)}
+.tbl tbody tr:last-child td{border-bottom:none}
+.mono{font-family:'SF Mono','Fira Code',monospace;font-size:11px;color:var(--text2)}
+.ir{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border2);font-size:12px}.ir:last-child{border-bottom:none}
+.ik{font-weight:600;color:var(--text2)}.iv{color:var(--text);text-align:right;word-break:break-word;max-width:62%}
+.ctrl-in,.ctrl-sel{background:#fff;border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:12px;outline:none;transition:border-color .15s}
+.ctrl-in:focus,.ctrl-sel:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.09)}
+.cb-bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.cl{border-radius:10px;padding:11px 15px;font-size:12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:9px;border:1px solid;line-height:1.5}
+.cl svg{width:15px;height:15px;flex-shrink:0;margin-top:1px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cl-blue{background:var(--bl);border-color:var(--blm);color:#1e40af}.cl-blue svg{stroke:var(--blue)}
+.cl-orange{background:var(--orange2);border-color:var(--orange3);color:#92400e}.cl-orange svg{stroke:var(--orange)}
+.cl-green{background:var(--green2);border-color:var(--green3);color:#065f46}.cl-green svg{stroke:var(--green)}
+.sw{padding:44px 22px;text-align:center}.sw-ico{font-size:36px;margin-bottom:10px}.sw-title{font-size:14px;font-weight:700;color:var(--text2);margin-bottom:5px}.sw-sub{font-size:12px;color:var(--text3);margin-bottom:14px;max-width:340px;margin-left:auto;margin-right:auto;line-height:1.5}
+.scr{overflow-y:auto}.scr::-webkit-scrollbar{width:4px}.scr::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.ac{background:#fff;border:1px solid var(--border);border-left:3px solid var(--blue);border-radius:10px;margin-bottom:11px;overflow:hidden;transition:box-shadow .15s}
+.ac:hover{box-shadow:0 4px 16px rgba(15,28,63,.09)}.ac.ack{border-left-color:var(--border);opacity:.6}
+.ach{padding:13px 17px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;cursor:pointer}
+.ac-sym{font-size:16px;font-weight:900;color:var(--navy)}.ac-meta{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.45}
+.ac-det{background:var(--surface2);border-top:1px solid var(--border2);padding:13px 17px;display:none}
+.ac-det.open{display:block}
+.fr{display:flex;align-items:center;gap:7px;margin-bottom:6px}.fn{font-size:10px;font-weight:600;color:var(--text2);width:155px;flex-shrink:0}.ft{flex:1;background:var(--bg2);height:5px;border-radius:3px;overflow:hidden}.ff{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:3px}.fv{width:78px;text-align:right;font-size:10px;font-family:monospace;color:var(--text)}.fi{width:42px;text-align:right;font-size:10px;color:var(--text3)}
+#gcanvas{display:block;cursor:grab;background:#f7faff}
+#gcanvas:active{cursor:grabbing}
+#gtip{position:fixed;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-size:11px;pointer-events:none;display:none;z-index:500;box-shadow:0 8px 32px rgba(15,28,63,.15);max-width:245px;line-height:1.7;color:var(--text)}
+.gleg{display:flex;gap:14px;flex-wrap:wrap;padding:11px 18px;border-top:1px solid var(--border2);background:var(--surface2)}
+.gli{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.gld{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.mxl{font-size:46px;font-weight:900;letter-spacing:-1px;line-height:1;color:var(--green)}
+.cmg{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:250px}
+.cmc{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:13px;text-align:center}
+.cml{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--text3);letter-spacing:.4px;margin-bottom:5px}.cmv{font-size:26px;font-weight:900}
+.ctp .cmv{color:var(--green)}.ctn .cmv{color:var(--blue)}.cfp .cmv{color:var(--orange)}.cfn .cmv{color:var(--red)}
+.fir{display:flex;align-items:center;gap:7px;margin-bottom:7px}.fin{font-size:10px;color:var(--text2);width:155px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fit{flex:1;background:var(--bg2);height:5px;border-radius:3px;overflow:hidden}.fif{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:3px}.fiv{font-size:10px;color:var(--blue);width:42px;text-align:right}
+.feed-ln{padding:4px 16px;border-bottom:1px solid var(--border2);font-family:'SF Mono','Fira Code',monospace;font-size:11px;display:flex;gap:10px;align-items:baseline}
+.feed-ln.pump{background:var(--red2);border-left:3px solid var(--red)}
+.feed-ln .fts{color:var(--text3);flex-shrink:0;min-width:75px}.feed-ln .fsym{font-weight:800;color:var(--navy);min-width:38px}
+.chip{display:inline-flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--text2);margin:2px}
+@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:960px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.g2,.g3,.g13{grid-template-columns:1fr}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.content{margin-left:0}.topbar{left:0}}
+:root{--bg:#f3f7fc;--bg2:#eaf0f8;--surface2:#f8fbff;--navy:#102342;--text:#182b48;--text2:#536780;--text3:#7a8ca3;--border:#dce5f0;--border2:#eaf0f6;--blue:#1769e8;--blue2:#1055c7;--bl:#edf5ff;--blm:#cfe2ff;--sw:232px}
+body{background:radial-gradient(ellipse at 85% 0%,#e8f2ff 0,transparent 35%),var(--bg);font-size:13px}
+.sidebar{background:linear-gradient(180deg,#fff,#f8fbff 65%,#f2f7fd);color:var(--navy);border-right:1px solid var(--border);box-shadow:2px 0 16px rgba(26,58,101,.04)}
+.sb-logo{border-bottom:1px solid var(--border2);padding:20px 17px 17px}.sb-logo-icon{width:38px;height:38px;border-radius:11px;box-shadow:0 5px 14px rgba(23,105,232,.2)}
+.sb-name{font-size:15px;color:var(--navy);letter-spacing:-.45px}.sb-tag{color:#8294ac;letter-spacing:1px;font-weight:700}
+.sb-sec{color:#96a6b9;padding:15px 17px 5px}.sb-item{color:#526783;padding:10px 17px;border-right:0;border-left:3px solid transparent;font-size:12px}
+.sb-item:hover{background:#f0f6ff;color:var(--blue)}.sb-item.active{background:#eaf3ff;color:#1458c1;border-left-color:#2879f4;font-weight:700}
+.sb-foot{border-top:1px solid var(--border2);color:#8192a8}.sb-foot a{color:var(--blue)}
+.topbar{height:62px;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom-color:#e5edf6;padding:0 26px;box-shadow:0 3px 12px rgba(23,54,96,.035)}
+.content{padding-top:62px}.page{padding:25px 28px}.sec-title{font-size:22px;letter-spacing:-.55px}.sec-sub{font-size:12.5px;color:#71839b}
+.kpi,.card{border-color:#e1e9f3;border-radius:13px;box-shadow:0 4px 15px rgba(20,51,93,.045)}.kpi{padding:17px 18px}.kpi:hover{box-shadow:0 9px 25px rgba(20,51,93,.09);transform:translateY(-2px)}
+.kpi::before{height:3px}.ch{background:linear-gradient(180deg,#fbfdff,#f7faff);padding:13px 18px}.ct{font-size:12.5px}.cb{padding:20px}
+.btn{border-radius:7px}.btn-blue,.btn-start-hdr{background:linear-gradient(135deg,#2678f2,#1459d1)}.btn-blue:hover:not(:disabled),.btn-start-hdr:hover{filter:brightness(.97)}
+.tbl th{background:#f7faff}.tbl td{padding:10px 13px}.tbl tbody tr{transition:background .14s}
+.cl{border-radius:10px;box-shadow:0 2px 7px rgba(23,54,95,.025)}
+.rp,.badge{letter-spacing:.1px}.ac{border-radius:12px;border-color:#e0e8f2}.ac.ack{border-left-color:#b4c2d3}
+.page.active{animation:pageIn .22s ease-out}@keyframes pageIn{from{opacity:.6;transform:translateY(3px)}to{opacity:1;transform:none}}
+.mobile-menu{display:none;border:1px solid var(--border);background:#fff;color:var(--navy);height:34px;width:36px;border-radius:8px;align-items:center;justify-content:center;font-size:19px}
+.graph-wrap{min-width:0;overflow:hidden;border-radius:0 0 12px 12px}.feed-ln{padding:6px 16px}
+@keyframes spin360{to{transform:rotate(360deg)}}
+@media(max-width:1200px){.page{padding:22px 20px}.kpi-grid{grid-template-columns:repeat(3,1fr)!important}}
+@media(max-width:768px){.sidebar{transform:translateX(-105%);transition:transform .2s;box-shadow:10px 0 30px #10234222}.sidebar.open{transform:translateX(0)}.topbar{padding:0 12px;height:58px}.content{padding-top:58px}.page{padding:16px 12px}.tb-r{gap:6px}.ts-lbl{display:none}.pg-title{font-size:13px}.pg-sub{display:none}.mobile-menu{display:flex}.kpi-grid{grid-template-columns:repeat(2,1fr)!important;gap:8px}.kpi{padding:13px}.kpi-val{font-size:22px}.sec-hd{flex-direction:column}.sec-title{font-size:19px}.g2,.g3,.g13{grid-template-columns:1fr}.topbar .replay-pill{display:none!important}}
+/* CryptoSentinel visual language: bright, calm, analytical, and legible */
+:root{--bg:#f5f8fc;--bg2:#eef3f9;--surface:#fff;--surface2:#f8fbff;--navy:#122744;--text:#203650;--text2:#536980;--text3:#71869e;--border:#dfe7f0;--border2:#edf1f6;--blue:#2468d7;--blue2:#1856bd;--bl:#eef5ff;--blm:#d7e6ff;--teal:#0d8f91;--red:#d9575f;--red2:#fff3f3;--red3:#f5d9dc;--green:#13866c;--green2:#eef9f5;--orange:#c87a22;--orange2:#fff8ed;--purple:#7255c7;--purple2:#f4f1ff}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:radial-gradient(ellipse at 88% 0%,#eaf2ff 0,transparent 36%),var(--bg);color:var(--text)}
+.sidebar{background:#fff;border-right:1px solid #e1e9f2;box-shadow:3px 0 18px rgba(27,57,97,.035)}
+.sb-logo{padding:19px 17px 17px}.sb-logo-icon{border-radius:12px;background:linear-gradient(145deg,#327be3,#156d9a);box-shadow:0 5px 14px rgba(36,104,215,.19)}
+.sb-name{color:var(--navy);font-size:15px;letter-spacing:-.45px}.sb-tag{color:#7e91a7;letter-spacing:1.05px;font-weight:700}
+.sb-sec{color:#8799ae;padding:16px 18px 5px;font-size:9px;letter-spacing:1.05px}.sb-item{color:#4e647e;padding:10px 17px;font-size:12px}.sb-item:hover{background:#f2f7fd;color:var(--blue)}.sb-item.active{background:#edf4ff;color:#1856bd;border-left-color:#2d75e8}
+.sb-foot{background:#fbfdff;border-top-color:#e9eff6;color:#8293a8}.sb-foot a{color:var(--blue)}
+.topbar{height:64px;padding:0 25px;border-bottom-color:#e4ebf3;box-shadow:0 3px 12px rgba(26,51,83,.035)}.content{padding-top:64px}.page{padding:24px 28px}.sec-title{font-size:22px;letter-spacing:-.6px}.sec-sub{max-width:720px;line-height:1.55;color:#6e8198}
+.kpi,.card{border-color:#e1e8f1;border-radius:14px;box-shadow:0 3px 13px rgba(23,54,94,.045)}.kpi{padding:16px 17px}.kpi:hover{box-shadow:0 8px 23px rgba(23,54,94,.08);transform:translateY(-1px)}.ch{background:#f9fbfe;padding:12px 17px}.cb{padding:18px}.ct{font-size:12.5px}
+.btn{border-radius:7px}.btn-blue,.btn-start-hdr{background:var(--blue);box-shadow:0 2px 6px rgba(36,104,215,.18)}.btn-blue:hover:not(:disabled),.btn-start-hdr:hover:not(:disabled){background:var(--blue2);filter:none;transform:translateY(-1px)}
+.ctrl-in,.ctrl-sel{min-height:34px;border-radius:8px}.btn:focus-visible,.ctrl-in:focus-visible,.ctrl-sel:focus-visible,.sb-item:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #9fc3ff;outline-offset:2px}
+.tbl th{background:#f7faff}.tbl td{padding:10px 12px;font-variant-numeric:tabular-nums}.sw{padding:34px 20px}.sw-ico{width:40px;height:40px;margin:0 auto 10px;display:grid;place-items:center;border-radius:12px;background:#eef4fb;font-size:20px;filter:grayscale(1);opacity:.72}
+.ac{border-radius:12px;border-left-width:3px}.ac:not(.ack){border-left-color:#db8c62}.ac.ack{border-left-color:#c4cfdd}.ac-sym{font-size:15px}.rp,.badge{font-variant-numeric:tabular-nums}
+.overview-strip{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:-4px 0 16px;padding:9px 12px;background:linear-gradient(90deg,#eff6ff,#f7fbff);border:1px solid #dfeaff;border-radius:10px;color:#48627e;font-size:11px}.overview-strip strong{color:#244c7a}.strip-dot{width:7px;height:7px;border-radius:50%;background:#2468d7;flex-shrink:0}.strip-sep{color:#afbed0}
+.pipeline-guide{margin-bottom:17px;border:1px solid #dfe8f3;border-radius:12px;background:#fff;box-shadow:0 2px 9px rgba(23,54,94,.025);overflow:hidden}.pipeline-guide summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 15px;color:var(--navy);font-weight:750}.pipeline-guide summary::-webkit-details-marker{display:none}.pipeline-guide summary:after{content:'＋';color:var(--blue);font-size:16px}.pipeline-guide[open] summary:after{content:'−'}.pipeline-kicker{display:block;margin-top:2px;color:var(--text3);font-size:10px;font-weight:450}.pipeline-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:0 12px 13px}.pipeline-step{position:relative;min-height:94px;padding:12px 12px 11px 42px;border:1px solid #e8eef5;border-radius:10px;background:linear-gradient(180deg,#fff,#fbfdff)}.pipeline-num{position:absolute;left:12px;top:12px;width:22px;height:22px;border-radius:7px;background:#eaf2ff;color:#2364c7;font-size:10px;font-weight:800;display:grid;place-items:center}.pipeline-step h4{font-size:11px;color:var(--navy);margin-bottom:4px}.pipeline-step p{font-size:10px;line-height:1.45;color:var(--text2)}.pipeline-module{margin-top:6px;color:#71869e;font:9px ui-monospace,monospace;word-break:break-word}
+.chart-legend{display:flex;align-items:center;gap:13px;flex-wrap:wrap;padding:3px 4px 5px;color:var(--text2);font-size:10px}.chart-key{display:inline-flex;align-items:center;gap:5px}.chart-swatch{width:8px;height:8px;border-radius:2px;display:inline-block}.chart-note{margin-left:auto;color:var(--text3)}
+.events-pager{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-top:1px solid var(--border2);background:#fbfdff;color:var(--text2);font-size:11px}.event-detail-row td{background:#f8fbff!important;padding:12px 18px!important;white-space:normal}.event-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px 16px}.event-detail-item{font-size:10px;color:var(--text2)}.event-detail-item strong{display:block;margin-bottom:2px;color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.3px}.sort-head{cursor:pointer;user-select:none}.sort-head:hover{color:var(--blue)}
+.graph-canvas{width:100%;height:420px;display:block;cursor:grab;background:#f8fbff}.graph-canvas:active{cursor:grabbing}.graph-tools{display:flex;align-items:center;gap:6px}.graph-hint{font-size:10px;color:var(--text3)}
+.metrics-five{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}.class-metrics{width:100%;border-collapse:collapse}.class-metrics th,.class-metrics td{padding:9px 10px;border-bottom:1px solid var(--border2);text-align:right;font-size:11px;font-variant-numeric:tabular-nums}.class-metrics th:first-child,.class-metrics td:first-child{text-align:left}.class-metrics th{color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.35px;background:#f8fbff}.dataset-range{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;background:#f5f9ff;border:1px solid #e5eef9;border-radius:9px;margin:0 0 12px;color:var(--text2);font-size:11px}.dataset-range strong{color:var(--navy)}
+@media(max-width:1100px){.pipeline-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics-five{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:768px){.topbar{height:58px}.content{padding-top:58px}.page{padding:16px 12px}.pipeline-steps{grid-template-columns:1fr}.metrics-five{grid-template-columns:repeat(2,minmax(0,1fr))}.event-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.events-pager{align-items:flex-start;flex-direction:column}.graph-canvas{height:340px}.overview-strip{font-size:10px}.chart-note{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="8 12 11 15 16 9" stroke-width="2.2"/></svg></div>
+    <div><div class="sb-name">CryptoSentinel</div><div class="sb-tag">Market Intelligence</div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Workspace</div>
+    <button class="sb-item active" onclick="showPage('overview',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview
+    </button>
+    <button class="sb-item" onclick="showPage('stream',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 010 8.49m-8.48-.01a6 6 0 010-8.49m11.31-2.82a10 10 0 010 14.14m-14.14 0a10 10 0 010-14.14"/></svg>Stream Replay
+    </button>
+    <button class="sb-item" onclick="showPage('events',this)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Events
+    </button>
+    <div class="sb-sec" style="margin-top:6px">Detection</div>
+    <button class="sb-item" onclick="showPage('alerts',this)">
+      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Alerts <span class="sb-badge" id="sb-al">0</span>
+    </button>
+    <button class="sb-item" onclick="showPage('graph',this)">
+      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Graph Analysis
+    </button>
+    <div class="sb-sec" style="margin-top:6px">Insights</div>
+    <button class="sb-item" onclick="showPage('evaluation',this)">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Evaluation
+    </button>
+    <button class="sb-item" onclick="showPage('dataset',this)">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Dataset
+    </button>
+  </nav>
+  <div class="sb-foot">Research prototype &middot; <a href="https://github.com/SystemsLab-Sapienza/pump-and-dump-dataset" target="_blank">Sapienza benchmark</a></div>
+</aside>
+
+<div class="content">
+<header class="topbar">
+  <div class="tb-l">
+    <button class="mobile-menu" aria-label="Toggle navigation" onclick="toggleNav()">☰</button>
+    <div><div class="pg-title" id="tb-title">Overview</div><div class="pg-sub" id="tb-sub">Historical benchmark replay · research prototype</div></div>
+  </div>
+  <div class="tb-r">
+    <div class="replay-pill" id="replay-pill"><div class="rdot"></div><span>Historical Replay Active</span></div>
+    <div class="conn-pill"><div class="cdot" id="cdot"></div><span id="clabel">Connecting</span></div>
+    <div class="ts-lbl" id="tb-ts"></div>
+    <button class="btn-start-hdr" id="btn-hdr-start" onclick="streamStart()">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Start Replay
+    </button>
+    <button class="btn btn-out btn-sm" id="btn-hdr-stop" onclick="streamStop()" disabled>
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Stop
+    </button>
+  </div>
+</header>
+
+<!-- OVERVIEW -->
+<section id="page-overview" class="page active">
+  <div class="sec-hd">
+    <div>
+      <div class="sec-title">Market Surveillance Overview</div>
+      <div class="sec-sub">Historical benchmark rows are replayed in timestamp order, transformed into rolling features, and scored by XGBoost. This view reports benchmark replay results; it is not a live-market detector.</div>
+    </div>
+    <div class="sec-acts"><button class="btn btn-out btn-sm" onclick="refreshAll()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh</button></div>
+  </div>
+  <div class="overview-strip"><span class="strip-dot"></span><strong>Historical benchmark replay</strong><span class="strip-sep">/</span><span>SystemsLab–Sapienza · 5-second trade chunks</span><span class="strip-sep">/</span><span id="overview-daterange">Reading date coverage…</span><span class="strip-sep">/</span><span>Not connected to a live exchange</span></div>
+  <details class="pipeline-guide">
+    <summary><span>How the data moves through CryptoSentinel<span class="pipeline-kicker">A faculty-friendly tour of the implemented path — open to inspect each stage and its source module.</span></span><span class="badge b-info">7 stages</span></summary>
+    <div class="pipeline-steps">
+      <article class="pipeline-step"><span class="pipeline-num">01</span><h4>Historical input</h4><p>Bundled labeled trade chunks are the replay source. The app does not subscribe to an exchange.</p><div class="pipeline-module">data/pump_dump_dataset/labeled_trades.csv</div></article>
+      <article class="pipeline-step"><span class="pipeline-num">02</span><h4>Chronological replay</h4><p>Timestamp-ordered rows enter a local queue at the selected playback multiplier.</p><div class="pipeline-module">backend/spark/src/ingestion.py</div></article>
+      <article class="pipeline-step"><span class="pipeline-num">03</span><h4>Feature engineering</h4><p>Rolling market history produces the model’s 12 serving-time features for each 5-second chunk.</p><div class="pipeline-module">backend/spark/src/preprocessing.py</div></article>
+      <article class="pipeline-step"><span class="pipeline-num">04</span><h4>Model inference</h4><p>The saved scaler and XGBoost model produce a raw score; scores at or above 0.50 are flagged.</p><div class="pipeline-module">backend/spark/src/anomaly_detection.py · models/</div></article>
+      <article class="pipeline-step"><span class="pipeline-num">05</span><h4>Episode grouping</h4><p>Flagged chunks sharing a benchmark event ID are grouped for review. A flag is a prediction, not proof.</p><div class="pipeline-module">ALERT_EPISODES · process memory</div></article>
+      <article class="pipeline-step"><span class="pipeline-num">06</span><h4>Relationship graph</h4><p>MarketEvent, CryptoAsset and available PumpGroup records are linked in an in-memory graph; no wallet data exists.</p><div class="pipeline-module">backend/spark/src/graph_builder.py</div></article>
+      <article class="pipeline-step"><span class="pipeline-num">07</span><h4>Dashboard delivery</h4><p>Flask endpoints deliver the current replay, graph and stored benchmark metrics to these seven views.</p><div class="pipeline-module">backend/api/app.py · frontend/index.html</div></article>
+    </div>
+  </details>
+  <div class="kpi-grid">
+    <div class="kpi" title="Cumulative since this Flask process started; processed includes chunks whose handling raised an error."><div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="kpi-lbl">Events Processed</div><div class="kpi-val" id="kpi-proc">—</div><div class="kpi-sub" id="kpi-eps">since process start · — events/s</div></div>
+    <div class="kpi kred" title="Unique benchmark window IDs with one or more model-flagged chunks, grouped across this process lifetime."><div class="kpi-ico"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="kpi-lbl">Flagged Episodes</div><div class="kpi-val" id="kpi-ep">—</div><div class="kpi-sub" id="kpi-chunks">unique benchmark window IDs · process lifetime</div></div>
+    <div class="kpi kgreen"><div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="kpi-lbl">Normal Events</div><div class="kpi-val" id="kpi-norm">—</div><div class="kpi-sub" id="kpi-npct">of total processed</div></div>
+    <div class="kpi kteal"><div class="kpi-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="1" y1="9" x2="4" y2="9"/></svg></div><div class="kpi-lbl">Throughput</div><div class="kpi-val" id="kpi-thru">—</div><div class="kpi-sub" id="kpi-st">Stream stopped</div></div>
+    <div class="kpi"><div class="kpi-ico"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="kpi-lbl">Model F1 Score</div><div class="kpi-val" id="kpi-f1">—</div><div class="kpi-sub">Chronological test split</div></div>
+    <div class="kpi kpurple"><div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div class="kpi-lbl">PR-AUC</div><div class="kpi-val" id="kpi-prauc">—</div><div class="kpi-sub">Precision-Recall area</div></div>
+  </div>
+
+  <div class="g2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="ch"><div class="ct"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Detection Timeline</div><div style="font-size:10px;color:var(--text3)">Model-flagged benchmark windows</div></div>
+      <div class="cb" style="padding:14px 18px 10px">
+        <canvas id="chart-tl" height="170" style="width:100%"></canvas>
+        <div id="chart-tl-empty" style="display:none" class="sw" style="padding:28px"><div class="sw-ico">📊</div><div class="sw-title">No flagged windows yet</div><div class="sw-sub">This timeline shows model-flagged benchmark windows only.</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Risk Distribution</div><div style="font-size:10px;color:var(--text3)">Recent classified chunk scores</div></div>
+      <div class="cb" style="padding:14px 18px 10px">
+        <canvas id="chart-risk" height="170" style="width:100%"></canvas>
+        <div id="chart-risk-empty" style="display:none" class="sw" style="padding:28px"><div class="sw-ico">📈</div><div class="sw-title">No risk data yet</div><div class="sw-sub">Start replay to populate detection scores</div></div>
+        <div class="chart-legend"><span class="chart-key"><i class="chart-swatch" style="background:#13866c"></i>Below 0.50 threshold</span><span class="chart-key"><i class="chart-swatch" style="background:#d9575f"></i>Flagged at ≥0.50</span><span class="chart-note">Raw XGBoost scores · recent in-memory rows · not calibrated probabilities</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><div class="ct"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Recent Flagged Windows</div><button class="btn btn-ghost btn-sm" onclick="showPage('alerts',document.querySelectorAll('.sb-item')[3])">All →</button></div>
+      <div class="cb np"><div id="ov-ep-list" class="scr" style="max-height:290px"><div class="sw"><div class="sw-ico">🔍</div><div class="sw-title">No episodes detected</div><div class="sw-sub">Start the replay to begin detection</div><button class="btn btn-blue btn-sm" onclick="streamStart()">Start Replay</button></div></div></div>
+    </div>
+    <div class="card">
+      <div class="ch"><div class="ct"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Symbol Activity</div><div style="font-size:10px;color:var(--text3)">Latest 500 processed chunks</div></div>
+      <div class="cb np"><div id="ov-syms" class="scr" style="max-height:290px"><div class="sw"><div class="sw-ico">💹</div><div class="sw-title">No symbol data</div><div class="sw-sub">Symbol activity populates during replay</div></div></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="ct">System Health</div></div>
+    <div class="cb" style="padding:12px 18px">
+      <div style="display:flex;gap:28px;flex-wrap:wrap">
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Dataset</div><div id="h-ds" style="font-size:13px;font-weight:700;color:var(--green)">Ready</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Model</div><div id="h-mdl" style="font-size:13px;font-weight:700;color:var(--text3)">Pending</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Replay state</div><div id="h-pipe" style="font-size:13px;font-weight:700;color:var(--text3)">Idle</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Graph</div><div id="h-graph" style="font-size:13px;font-weight:700;color:var(--text3)">Empty</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Kafka/Spark/Neo4j</div><div style="font-size:13px;font-weight:700;color:var(--orange)">Optional — not required</div></div>
+        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Errors</div><div id="h-err" style="font-size:13px;font-weight:700;color:var(--green)">0</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STREAM -->
+<section id="page-stream" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Historical replay control room</div><div class="sec-sub">Control playback of the bundled benchmark, inspect actual queue/pipeline state, and follow model outputs as the historical rows are processed.</div></div><div class="sec-acts"><span class="badge b-info">Historical data · not live</span></div></div>
+  <div class="cl cl-blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><div><strong>Historical Dataset Replay</strong> — Replays the SystemsLab-Sapienza benchmark at configurable speed through the XGBoost pipeline. This is <em>not</em> a live exchange connection. Each event is a historical 5-second OHLCV chunk scored as it is replayed.</div></div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="ch"><div class="ct">Replay Controls</div></div>
+    <div class="cb">
+      <div class="cb-bar" style="margin-bottom:14px">
+        <button class="btn btn-green" id="sb-start" onclick="streamStart()"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Start</button>
+        <button class="btn btn-orange" id="sb-pause" onclick="streamPause()" disabled><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>Pause</button>
+        <button class="btn btn-out" id="sb-resume" onclick="streamResume()" disabled><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Resume</button>
+        <button class="btn btn-red" id="sb-stop" onclick="streamStop()" disabled><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Stop</button>
+        <div style="display:flex;align-items:center;gap:7px;margin-left:6px">
+          <label style="font-size:12px;font-weight:600;color:var(--text2)">Replay Speed:</label>
+          <select class="ctrl-sel" id="spd-sel" onchange="streamSetSpeed(this.value)">
+            <option value="1">1×</option><option value="5">5×</option><option value="10">10×</option><option value="50">50×</option><option value="100">100×</option><option value="500" selected>500×</option><option value="1000">1,000×</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><div id="str-sb"><span class="badge b-stop">Stopped</span></div><div id="str-pl" style="font-size:11px;color:var(--text3)"></div></div>
+      <div class="prog-t"><div class="prog-f" id="str-pf" style="width:0%"></div></div>
+      <div style="margin-top:7px;font-size:11px;color:var(--text3)" id="str-ts">Last event: —</div>
+    </div>
+  </div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr)">
+    <div class="kpi" title="Cumulative since server process start; includes chunks whose handling later records an error."><div class="kpi-lbl">Pipeline Chunks Handled</div><div class="kpi-val" id="str-proc">—</div><div class="kpi-sub">Cumulative · this process lifetime</div></div>
+    <div class="kpi kteal"><div class="kpi-lbl">Events / sec</div><div class="kpi-val" id="str-eps">—</div><div class="kpi-sub">Throughput</div></div>
+    <div class="kpi korange"><div class="kpi-lbl">Queue Depth</div><div class="kpi-val" id="str-q">—</div><div class="kpi-sub">Buffered</div></div>
+    <div class="kpi kred"><div class="kpi-lbl">Model-Flagged Chunks</div><div class="kpi-val" id="str-al">—</div><div class="kpi-sub">5-second predictions · cumulative</div></div>
+    <div class="kpi kgreen"><div class="kpi-lbl">Graph Event Writes</div><div class="kpi-val" id="str-gw">—</div><div class="kpi-sub">Added to in-memory graph</div></div>
+    <div class="kpi"><div class="kpi-lbl">Errors</div><div class="kpi-val" id="str-err">0</div><div class="kpi-sub">Pipeline exceptions</div></div>
+  </div>
+  <div class="card">
+      <div class="ch"><div class="ct">Historical Replay Feed</div><button class="btn btn-ghost btn-sm" id="feed-btn" onclick="toggleFeed()">Pause Feed</button></div>
+    <div class="cb np"><div id="ev-feed" class="scr" style="max-height:260px"><div class="sw" style="padding:28px"><div class="sw-ico">◷</div><div class="sw-title">Replay is idle</div><div class="sw-sub">Start the historical benchmark replay to inspect processed events. No live exchange data is connected.</div></div></div></div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="page-events" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Recent event explorer</div><div class="sec-sub">Search and inspect model outputs from the latest bounded in-memory window. Dates, symbols, score and prediction filters apply to those retained rows only.</div></div><div class="sec-acts"><span class="badge b-info">Up to 2,000 recent rows</span></div></div>
+  <div class="card">
+    <div class="ch">
+      <div class="ct"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Events Explorer <span id="ev-cnt" style="font-weight:400;color:var(--text3);font-size:11px;margin-left:6px"></span></div>
+      <button class="btn btn-out btn-sm" onclick="loadEvents()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh</button>
+    </div>
+    <div class="cb" style="padding-bottom:10px;border-bottom:1px solid var(--border2)">
+      <div class="cb-bar">
+        <label style="font-size:12px;font-weight:600;color:var(--text2)">Search: <input type="search" class="ctrl-in" id="ev-q" placeholder="Symbol or event ID" style="width:160px;margin-left:5px" oninput="evD()"></label>
+        <label style="font-size:12px;font-weight:600;color:var(--text2)">Symbol: <input type="text" class="ctrl-in" id="ev-sym" placeholder="e.g. DLT" style="width:76px;margin-left:5px;text-transform:uppercase" oninput="evD()"></label>
+        <label style="font-size:12px;font-weight:600;color:var(--text2)">Label: <select class="ctrl-sel" id="ev-lbl" onchange="resetEvents()" style="margin-left:5px"><option value="">All</option><option value="PUMP_AND_DUMP">Model flagged</option><option value="NORMAL">Model normal</option></select></label>
+        <label style="font-size:12px;font-weight:600;color:var(--text2)">Min score: <select class="ctrl-sel" id="ev-risk" onchange="resetEvents()" style="margin-left:5px"><option value="0">Any</option><option value="0.5">&ge;50%</option><option value="0.75">&ge;75%</option><option value="0.9">&ge;90%</option></select></label>
+        <label style="font-size:12px;font-weight:600;color:var(--text2)">From: <input type="date" class="ctrl-in" id="ev-from" onchange="resetEvents()" aria-label="Events from date"></label>
+        <label style="font-size:12px;font-weight:600;color:var(--text2)">To: <input type="date" class="ctrl-in" id="ev-to" onchange="resetEvents()" aria-label="Events to date"></label>
+        <label style="font-size:12px;font-weight:600;color:var(--text2)">Sort: <select class="ctrl-sel" id="ev-sort" onchange="resetEvents()" style="margin-left:5px"><option value="timestamp:desc">Newest first</option><option value="timestamp:asc">Oldest first</option><option value="risk:desc">Highest score</option><option value="risk:asc">Lowest score</option><option value="symbol:asc">Symbol A–Z</option></select></label>
+        <label style="font-size:12px;font-weight:600;color:var(--text2)">Rows: <select class="ctrl-sel" id="ev-lim" onchange="resetEvents()" style="margin-left:5px"><option value="50">50</option><option value="100" selected>100</option><option value="200">200</option></select></label>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th>Event / Window</th><th>Symbol</th><th>Timestamp</th><th>Price Δ</th><th>Trades</th><th>Volume</th><th>Raw score</th><th>Prediction</th><th>Top ranked feature</th><th>Inspect</th></tr></thead>
+        <tbody id="ev-tbody"><tr><td colspan="10"><div class="sw"><div class="sw-ico">⌕</div><div class="sw-title">No events yet</div><div class="sw-sub">Start the historical replay to populate the recent event window.</div></div></td></tr></tbody>
+      </table>
+    </div>
+    <div class="events-pager"><span id="ev-page-note">Events are held in a bounded recent-memory window (up to 2,000 rows).</span><div style="display:flex;gap:7px"><button class="btn btn-out btn-sm" id="ev-prev" onclick="stepEventPage(-1)" disabled>Previous</button><button class="btn btn-out btn-sm" id="ev-next" onclick="stepEventPage(1)" disabled>Next</button></div></div>
+  </div>
+</section>
+
+<!-- ALERTS -->
+<section id="page-alerts" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Model-flagged episodes</div><div class="sec-sub">One investigation card per unique benchmark event/window, with the number of five-second chunks that crossed the model threshold.</div></div><div class="sec-acts"><span class="badge b-info">Threshold ≥ 0.50</span></div></div>
+  <div class="cl cl-orange"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>Predicted episodes, not confirmed incidents.</strong> Cards group model-threshold alerts by the benchmark's unique event/window ID. A window can be a false positive; its dataset ground-truth label is shown only in the expanded details. Each flagged chunk is one five-second interval. Scores are raw XGBoost probabilities, not externally calibrated.</div></div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="kpi kred"><div class="kpi-lbl">Unique Flagged Episodes</div><div class="kpi-val" id="al-ep">—</div><div class="kpi-sub">Distinct benchmark windows flagged</div></div>
+    <div class="kpi korange"><div class="kpi-lbl">Total Flagged Chunks</div><div class="kpi-val" id="al-ch">—</div><div class="kpi-sub">5-second intervals flagged</div></div>
+  </div>
+  <div class="cb-bar" style="margin-bottom:13px">
+    <button class="btn btn-out btn-sm" onclick="loadAlerts()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh</button>
+    <label style="font-size:12px;font-weight:600;color:var(--text2)">Filter: <select class="ctrl-sel" id="al-filt" onchange="resetAlerts()" style="margin-left:5px"><option value="all">All Episodes</option><option value="unack">Unacknowledged Only</option><option value="ack">Acknowledged Only</option></select></label>
+    <label style="font-size:12px;font-weight:600;color:var(--text2)">Peak score: <select class="ctrl-sel" id="al-risk" onchange="resetAlerts()" style="margin-left:5px"><option value="0">Any</option><option value="0.5">&ge;50%</option><option value="0.75">&ge;75%</option><option value="0.9">&ge;90%</option></select></label>
+    <label style="font-size:12px;font-weight:600;color:var(--text2)">From: <input type="date" class="ctrl-in" id="al-from" onchange="resetAlerts()" aria-label="Alerts from date"></label>
+    <label style="font-size:12px;font-weight:600;color:var(--text2)">To: <input type="date" class="ctrl-in" id="al-to" onchange="resetAlerts()" aria-label="Alerts to date"></label>
+    <input type="search" class="ctrl-in" id="al-q" placeholder="Search symbol or episode ID" oninput="alD()" aria-label="Search pump episodes">
+    <span id="al-cnt" style="font-size:11px;color:var(--text3)"></span>
+  </div>
+  <div style="font-size:10px;color:var(--text3);margin:-5px 0 12px">Acknowledgments are held in this server process and reset when it restarts. This page shows model-flagged benchmark windows, not confirmed live incidents.</div>
+  <div id="al-list"><div class="sw" style="padding:44px"><div class="sw-ico">🔍</div><div class="sw-title">No pump episodes detected</div><div class="sw-sub">Start the dataset replay to run the detection pipeline. Suspicious episodes will appear here as they are flagged.</div><button class="btn btn-blue btn-sm" onclick="streamStart();showPage('stream',document.querySelectorAll('.sb-item')[1])">Start Replay</button></div></div>
+  <div class="events-pager"><span id="al-page-note">Episode totals update from model predictions during replay.</span><div style="display:flex;gap:7px"><button class="btn btn-out btn-sm" id="al-prev" onclick="stepAlertPage(-1)" disabled>Previous</button><button class="btn btn-out btn-sm" id="al-next" onclick="stepAlertPage(1)" disabled>Next</button></div></div>
+</section>
+
+<!-- GRAPH -->
+<section id="page-graph" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Market-event relationships</div><div class="sec-sub">Explore the bounded in-memory event graph and its asset, time-chain, and benchmark-group relationships. This is not a wallet transaction graph.</div></div><div class="sec-acts"><span class="badge b-info">Graph data is process-local</span></div></div>
+  <div class="cl cl-blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><div><strong>Graph schema:</strong> The Sapienza dataset contains <em>no wallet addresses</em>. This graph models market events, not transactions. Nodes: <strong>CryptoAsset</strong> (traded coin), <strong>MarketEvent</strong> (5-sec chunk), <strong>PumpGroup</strong> (Telegram group code). Edges: BELONGS_TO &middot; NEXT (time chain) &middot; ORGANIZED_BY.</div></div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr);margin-bottom:14px">
+    <div class="kpi"><div class="kpi-lbl">Total Nodes</div><div class="kpi-val" id="g-nd">—</div></div>
+    <div class="kpi"><div class="kpi-lbl">Total Edges</div><div class="kpi-val" id="g-ed">—</div><div class="kpi-sub">Cap: 10 000</div></div>
+    <div class="kpi"><div class="kpi-lbl">Market Events</div><div class="kpi-val" id="g-me">—</div></div>
+    <div class="kpi"><div class="kpi-lbl">Assets</div><div class="kpi-val" id="g-as">—</div></div>
+    <div class="kpi kred"><div class="kpi-lbl">Suspicious</div><div class="kpi-val" id="g-su">—</div></div>
+    <div class="kpi kpurple"><div class="kpi-lbl">Pump Groups</div><div class="kpi-val" id="g-pg">—</div></div>
+  </div>
+  <div class="g13">
+    <div>
+      <div class="card" style="margin-bottom:13px"><div class="ch"><div class="ct">Selected Node</div></div><div class="cb" id="g-det" style="min-height:110px"><div class="sw" style="padding:18px"><div class="sw-ico" style="font-size:24px">👆</div><div class="sw-sub" style="margin-bottom:0">Click a node to inspect</div></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">Suspicious Events</div></div><div class="cb np"><div id="g-sus-list" class="scr" style="max-height:250px"><div class="sw" style="padding:22px"><div class="sw-sub" style="margin-bottom:0">Start replay to populate</div></div></div></div></div>
+    </div>
+    <div class="card" style="overflow:hidden">
+      <div class="ch">
+        <div><div class="ct"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Graph Visualization</div><div id="g-status" class="graph-hint" role="status">Not loaded yet</div></div>
+        <div class="graph-tools">
+          <label style="font-size:11px;color:var(--text2)">Limit: <input type="number" id="g-lim" value="120" min="20" max="300" class="ctrl-in" style="width:58px;margin-left:4px"></label>
+          <button class="btn btn-out btn-sm" onclick="loadGraph()">Refresh</button>
+          <button class="btn btn-out btn-sm" onclick="loadSusOnly()">Sus only</button>
+          <button class="btn btn-out btn-sm" onclick="zoomGraph(.85)" aria-label="Zoom out">−</button><span class="graph-hint" id="g-zoom">100%</span><button class="btn btn-out btn-sm" onclick="zoomGraph(1.18)" aria-label="Zoom in">+</button><button class="btn btn-out btn-sm" onclick="resetGraphView()">Reset view</button>
+        </div>
+      </div>
+      <canvas id="gcanvas" class="graph-canvas" width="700" height="450" tabindex="0" role="img" aria-label="Interactive market event relationship graph"></canvas>
+      <div id="gtip"></div>
+      <div class="gleg">
+        <div class="gli"><div class="gld" style="background:#3b82f6"></div>CryptoAsset</div>
+        <div class="gli"><div class="gld" style="background:#10b981"></div>Normal Event</div>
+        <div class="gli"><div class="gld" style="background:#ef4444"></div>Suspicious Event</div>
+        <div class="gli"><div class="gld" style="background:#7c3aed"></div>Pump Group</div>
+        <div style="margin-left:auto;font-size:10px;color:var(--text3)">Drag node to reposition · Drag background to pan · Scroll to zoom · Hover to inspect</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVALUATION -->
+<section id="page-evaluation" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Saved benchmark evaluation</div><div class="sec-sub">Stored test-set metrics, confusion counts, class-specific results, feature importances, and split details from the project artifacts.</div></div><div class="sec-acts"><span class="badge b-info">No retraining on page load</span></div></div>
+  <div id="eval-load" style="text-align:center;padding:40px"><div style="font-size:28px;animation:spin360 .8s linear infinite;display:inline-block">&#8635;</div><div style="margin-top:8px;color:var(--text3)">Loading evaluation metrics...</div></div>
+  <div id="eval-na" style="display:none" class="card"><div class="cb"><div class="sw"><div class="sw-ico">↗</div><div class="sw-title">No stored evaluation metrics</div><div class="sw-sub">The model artifact has no metrics file. If you intend to retrain, run <code>python3 scripts/train_models.py</code> after backing up the bundled model.</div></div></div></div>
+  <div id="eval-error" class="cl cl-orange" style="display:none"><strong>Evaluation data could not be loaded.</strong><span id="eval-error-text">Check the backend, then retry.</span><button class="btn btn-out btn-sm" onclick="loadEval()">Retry</button></div>
+  <div id="eval-con" style="display:none">
+    <div class="cl cl-orange"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>Benchmark evaluation only:</strong> These are the saved chronological test-set results (70/15/15 split; 96,000 five-second rows), not metrics recomputed during replay. Strong scores on this one labeled dataset do <strong>not</strong> guarantee real-world or trading accuracy; no live-exchange validation is performed.</div></div>
+    <div class="metrics-five">
+      <div class="kpi kblue" title="Overall fraction of test rows classified correctly"><div class="kpi-lbl">Accuracy</div><div class="mxl" style="color:var(--blue)" id="ev-acc">—</div><div class="kpi-sub">Correct / all test rows</div></div>
+      <div class="kpi kgreen" title="Of predicted pump windows, fraction labeled pump"><div class="kpi-lbl">Pump Precision</div><div class="mxl" id="ev-prec">—</div><div class="kpi-sub">How many flags were right</div></div>
+      <div class="kpi kgreen" title="Of pump-labeled test rows, fraction found"><div class="kpi-lbl">Pump Recall</div><div class="mxl" id="ev-rec">—</div><div class="kpi-sub">How many positives were found</div></div>
+      <div class="kpi kgreen" title="Harmonic mean of precision and recall"><div class="kpi-lbl">Pump F1</div><div class="mxl" id="ev-f1">—</div><div class="kpi-sub">Balances precision and recall</div></div>
+      <div class="kpi" title="Area under the precision–recall curve"><div class="kpi-lbl">PR-AUC</div><div class="mxl" style="color:var(--blue)" id="ev-prauc">—</div><div class="kpi-sub">Ranking across thresholds</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">Confusion Matrix — Test Set</div><span style="font-size:10px;color:var(--text3)">Rows: actual · Columns: predicted</span></div><div class="cb">
+        <div class="cmg"><div class="cmc ctn"><div class="cml">True Neg</div><div class="cmv" id="ev-tn">—</div></div><div class="cmc cfp"><div class="cml">False Pos</div><div class="cmv" id="ev-fp">—</div></div><div class="cmc cfn"><div class="cml">False Neg</div><div class="cmv" id="ev-fn">—</div></div><div class="cmc ctp"><div class="cml">True Pos</div><div class="cmv" id="ev-tp">—</div></div></div>
+        <div style="margin-top:16px" id="ev-extra"></div>
+      </div></div>
+      <div class="card"><div class="ch"><div class="ct">Global Feature Importance</div><div style="font-size:10px;color:var(--text3)">Model-level · not causal attribution</div></div><div class="cb" id="ev-fi"></div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">Train / Val / Test Split</div></div><div class="cb" id="ev-spl"></div></div>
+      <div class="card"><div class="ch"><div class="ct">Class Support &amp; Per-Class Results</div></div><div class="cb" id="ev-cls"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DATASET -->
+<section id="page-dataset" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Dataset &amp; provenance</div><div class="sec-sub">Inspect the bundled benchmark's actual coverage, labels, source schema, missingness, and attribution before interpreting any model result.</div></div><div class="sec-acts"><span class="badge b-info">Single benchmark source</span></div></div>
+  <div class="g2">
+    <div class="card"><div class="ch"><div class="ct">Dataset Summary</div></div><div class="cb" id="ds-sum"><div class="sw" style="padding:28px"><div class="sw-ico">🗄</div><div class="sw-sub" style="margin-bottom:0">Loading...</div></div></div></div>
+    <div class="card"><div class="ch"><div class="ct">Provenance &amp; Compliance</div></div><div class="cb">
+      <div class="ir"><span class="ik">Name</span><span class="iv">SystemsLab-Sapienza Pump-and-Dump Benchmark</span></div>
+      <div class="ir"><span class="ik">Paper</span><span class="iv">"Pump and Dumps in the Bitcoin Era", ICCCN 2020</span></div>
+      <div class="ir"><span class="ik">Repository</span><span class="iv"><a href="https://github.com/SystemsLab-Sapienza/pump-and-dump-dataset" target="_blank">github.com/SystemsLab-Sapienza</a></span></div>
+      <div class="ir"><span class="ik">Files used</span><span class="iv">pump_telegram.csv · pump_events_clean.csv · labeled_trades.csv</span></div>
+      <div class="ir"><span class="ik">Dataset rule</span><span class="iv">Single source — all files from the same benchmark</span></div>
+      <div class="ir"><span class="ik">Chunk interval</span><span class="iv">5-second OHLCV aggregation</span></div>
+      <div class="ir"><span class="ik">Labels</span><span class="iv">is_pump=1 inside pump window / 0 outside</span></div>
+      <div class="ir"><span class="ik">Ground truth use</span><span class="iv">Evaluation only — not fed to classifier at inference</span></div>
+    </div></div>
+  </div>
+  <div class="card"><div class="ch"><div class="ct">Feature Schema</div><div style="font-size:10px;color:var(--text3)">12 model inputs derived by the existing preprocessing module</div></div><div class="cb"><div id="ds-feats" style="display:flex;gap:7px;flex-wrap:wrap"></div><div class="ir" style="margin-top:12px"><span class="ik">Bundled source fields</span><span class="iv" id="ds-source-cols" style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">Loading schema…</span></div></div></div>
+  <div class="card"><div class="ch"><div class="ct">Team Responsibilities</div></div><div class="cb">
+    <div class="ir"><span class="ik" style="color:var(--blue)">Nikunj Bhatt (018)</span><span class="iv">Data collection &amp; preprocessing &rarr; dataset download, schema cleaning, labeled_trades.csv generation (data/download.py)</span></div>
+    <div class="ir"><span class="ik" style="color:var(--teal)">Sruthi (001)</span><span class="iv">Stream processing &amp; feature engineering &rarr; StreamController, compute_features, extract_single_event_features (ingestion.py, preprocessing.py)</span></div>
+    <div class="ir"><span class="ik" style="color:var(--purple)">Arnav (044)</span><span class="iv">Graph analysis &amp; detection &rarr; XGBoost classifier, GAT architecture config, DetectionPipeline, GraphWriter, graph schema (classification.py, anomaly_detection.py, graph_builder.py)</span></div>
+    <div class="ir"><span class="ik" style="color:var(--red)">Aanya (005)</span><span class="iv">Visualization &amp; system evaluation &rarr; Flask REST API, this dashboard, episode grouping, evaluation scripts (api/app.py, frontend/index.html)</span></div>
+  </div></div>
+</section>
+
+</div></div>
+<script>
+/* CryptoSentinel Dashboard — Author: Aanya (005) */
+const API='';
+let _feed=true,_feedLines=[],_timer=null,_evT=null,_feedSeen=new Set(),_alT=null;
+let _tlData=[],_riskData=[];
+let _lastStreamStatus='stopped';
+function toggleNav(){document.querySelector('.sidebar').classList.toggle('open');}
+
+/* ── Formatters ── */
+const fN=n=>(n==null)?'—':Number(n).toLocaleString();
+const fP=v=>(v==null)?'—':(v*100).toFixed(1)+'%';
+const fPr=v=>(v==null)?'—':(Math.abs(v)<0.001?v.toFixed(8):v.toFixed(6));
+const fC=v=>(v==null)?'—':((v>=0?'+':'')+(v*100).toFixed(2)+'%');
+function fTs(ts){if(!ts)return'—';try{const d=new Date(ts);return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch{return ts;}}
+function sTs(ts){if(!ts)return'—';try{return new Date(ts).toLocaleTimeString();}catch{return ts;}}
+function rCls(v){return v>=0.9?'rph':v>=0.5?'rpm':'rpl';}
+function rPill(v){if(v==null)return'—';return`<span class="rp ${rCls(v)}">${fP(v)}</span>`;}
+function rBar(v){if(v==null)return'—';const p=(v*100).toFixed(0);return`<div class="rb"><div class="rbt"><div class="rbf" style="width:${p}%"></div></div><span class="${rCls(v)}" style="font-size:10px;font-weight:700">${p}%</span></div>`;}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(msg,t='info'){const c={info:'#2563eb',success:'#059669',error:'#dc2626',warn:'#d97706'};const el=document.createElement('div');el.style.cssText=`position:fixed;bottom:18px;right:18px;background:${c[t]};color:#fff;padding:9px 16px;border-radius:8px;z-index:9999;font-size:12px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:opacity .3s;max-width:300px`;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},2800);}
+/* ── Navigation ── */
+const PAGE_META={
+  overview:{title:'Overview',sub:'Historical benchmark replay · research prototype'},
+  stream:{title:'Stream Replay',sub:'Historical dataset replay through the XGBoost detection pipeline'},
+  events:{title:'Events Explorer',sub:'Browse, filter, and inspect individual 5-second market events'},
+  alerts:{title:'Alert Investigation',sub:'Model-threshold predictions grouped by unique benchmark event/window ID'},
+  graph:{title:'Graph Analysis',sub:'Market event relationship graph derived from the Sapienza benchmark'},
+  evaluation:{title:'Model Evaluation',sub:'XGBoost classifier performance on the held-out chronological test set'},
+  dataset:{title:'Dataset &amp; Provenance',sub:'SystemsLab-Sapienza benchmark · One dataset · Four team contributions'}
+};
+function showPage(name,btn){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  if(btn)btn.classList.add('active');
+  const m=PAGE_META[name]||{};
+  document.getElementById('tb-title').innerHTML=m.title||name;
+  document.getElementById('tb-sub').textContent=m.sub||'';
+  const h={overview:refreshOv,stream:refreshStr,events:loadEvents,alerts:loadAlerts,graph:()=>{loadGStats();loadGraph();loadSusList();},evaluation:loadEval,dataset:loadDs};
+  if(h[name])h[name]();
+}
+
+/* ── Health ── */
+async function checkHealth(){
+  try{const r=await fetch(API+'/api/health',{signal:AbortSignal.timeout(3000)});
+    if(!r.ok)throw 0;const d=await r.json();
+    document.getElementById('cdot').className='cdot on';
+    document.getElementById('clabel').textContent='Backend online';
+    document.getElementById('tb-ts').textContent=new Date(d.timestamp).toLocaleTimeString();
+    const ds=d.dataset||{};const range=document.getElementById('overview-daterange');
+    if(range&&ds.start_date&&ds.end_date){const df=x=>new Date(x).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});range.textContent=`Benchmark coverage ${df(ds.start_date)}–${df(ds.end_date)} UTC`;}
+    const m=d.model||{};
+    if(m.f1!=null){document.getElementById('kpi-f1').textContent=fP(m.f1);document.getElementById('kpi-prauc').textContent=fP(m.pr_auc);}
+    return d;
+  }catch{document.getElementById('cdot').className='cdot';document.getElementById('clabel').textContent='Backend offline';return null;}
+}
+
+/* ── Overview ── */
+async function refreshOv(){
+  try{
+    const[sR,epR,evR]=await Promise.allSettled([fetch(API+'/api/events/summary'),fetch(API+'/api/alerts/episodes?limit=500'),fetch(API+'/api/events?limit=2000')]);
+    let processedRows=0;
+    if(sR.status==='fulfilled'&&sR.value.ok){
+      const s=await sR.value.json();
+      processedRows=s.total_processed||0;
+      document.getElementById('kpi-proc').textContent=fN(s.total_processed);
+      document.getElementById('kpi-eps').textContent=`since process start · current replay ${(s.events_per_sec||0).toFixed(1)} events/s`;
+      document.getElementById('kpi-norm').textContent=fN(s.total_normal);
+      const tot=Math.max(s.total_processed||1,1);
+      document.getElementById('kpi-npct').textContent=((s.total_normal/tot)*100).toFixed(1)+'% of total';
+      document.getElementById('kpi-thru').textContent=(s.events_per_sec||0).toFixed(1)+'/s';
+      const st=s.stream_status||'stopped';
+      _lastStreamStatus=st;
+      const feedComplete=st==='stopped'&&(s.replay_total||0)>0&&(s.replay_position||0)>=s.replay_total;
+      const stMap={running:'Running',stopped:feedComplete?'Feed complete':'Stopped',paused:'Paused'};
+      document.getElementById('kpi-st').textContent='Replay feed: '+(stMap[st]||st);
+      const rPill=document.getElementById('replay-pill');
+      rPill.style.display=st==='running'?'flex':'none';
+      document.getElementById('btn-hdr-start').disabled=st==='running';
+      document.getElementById('btn-hdr-stop').disabled=st==='stopped';
+      const pipeState=s.model_loaded?(st==='running'?'Replaying':st==='paused'?'Paused':feedComplete?'Feed complete':'Ready'):'Idle';
+      document.getElementById('h-pipe').textContent=pipeState;
+      document.getElementById('h-pipe').style.color=!s.model_loaded?'var(--text3)':st==='paused'?'var(--orange)':'var(--green)';
+      document.getElementById('h-err').textContent=s.processing_errors||0;
+      document.getElementById('h-err').style.color=(s.processing_errors||0)>0?'var(--red)':'var(--green)';
+      const syms=s.symbols||{};const keys=Object.keys(syms);
+      const symEl=document.getElementById('ov-syms');
+      if(!keys.length){symEl.innerHTML='<div class="sw"><div class="sw-ico">💹</div><div class="sw-title">No symbol data</div><div class="sw-sub">Symbol activity populates during replay</div></div>';}
+      else{symEl.innerHTML='<table class="tbl"><thead><tr><th>Symbol</th><th>Latest Price</th><th>Avg Volume</th><th>Chunks</th><th>Latest UTC</th></tr></thead><tbody>'+keys.sort().map(k=>{const v=syms[k];return`<tr><td><strong style="color:var(--blue)">${esc(k)}</strong></td><td class="mono">${fPr(v.latest_price)}</td><td class="mono">${Number(v.avg_volume||0).toFixed(4)}</td><td>${fN(v.event_count)}</td><td style="font-size:10px;color:var(--text3);white-space:nowrap">${sTs(v.latest_timestamp)}</td></tr>`;}).join('')+'</tbody></table>';}
+      updateHGraph(s);
+    }
+    if(epR.status==='fulfilled'&&epR.value.ok){
+      const a=await epR.value.json();const eps=a.episodes||[];
+      document.getElementById('kpi-ep').textContent=fN(a.total_episodes);
+      const tC=eps.reduce((s,e)=>s+e.flagged_chunks,0);
+      document.getElementById('kpi-chunks').textContent='flagged 5-second chunks: '+fN(tC)+' · this process';
+      const nb=document.getElementById('sb-al');
+      nb.style.display=a.total_episodes>0?'inline':'none';if(a.total_episodes>0)nb.textContent=a.total_episodes;
+      const alEl=document.getElementById('ov-ep-list');
+      if(!eps.length){alEl.innerHTML='<div class="sw"><div class="sw-ico">🔍</div><div class="sw-title">No episodes detected</div><div class="sw-sub">Start the replay to begin detection</div><button class="btn btn-blue btn-sm" onclick="streamStart()">Start Replay</button></div>';}
+      else{alEl.innerHTML=eps.slice(0,7).map(ep=>epRowMini(ep)).join('');}
+      updateTLChart(eps,processedRows);
+    }
+    if(evR.status==='fulfilled'&&evR.value.ok){const e=await evR.value.json();updateRiskChart(e.events||[]);}
+  }catch(e){console.warn('ov err',e);}
+}
+
+function updateHGraph(s){
+  document.getElementById('h-mdl').textContent=s.model_loaded?'Loaded':'Not loaded';
+  document.getElementById('h-mdl').style.color=s.model_loaded?'var(--green)':'var(--orange)';
+  const graphNodes=(s.graph||{}).total_nodes||0;
+  const graphEl=document.getElementById('h-graph');
+  graphEl.textContent=graphNodes?`${fN(graphNodes)} nodes`:'Empty';
+  graphEl.style.color=graphNodes?'var(--blue)':'var(--text3)';
+}
+
+function epRowMini(ep){
+  return`<div style="padding:10px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .1s" onmouseenter="this.style.background='var(--bl)'" onmouseleave="this.style.background=''" onclick="showPage('alerts',document.querySelectorAll('.sb-item')[3])">
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:800;font-size:14px;color:var(--navy)">${esc(ep.symbol)} <span class="badge b-pump" style="font-size:9px;margin-left:5px">MODEL FLAG</span></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${fTs(ep.timestamp)} &middot; ${ep.flagged_chunks} chunks flagged</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">${rPill(ep.peak_risk_score)}<div style="font-size:9px;color:var(--text3);margin-top:2px">peak score</div></div>
+  </div>`;
+}
+
+/* ── Charts ── */
+function updateTLChart(eps,processed=0){
+  const canvas=document.getElementById('chart-tl');
+  const empty=document.getElementById('chart-tl-empty');
+  if(!eps||!eps.length){canvas.style.display='none';empty.style.display='block';empty.querySelector('.sw-title').textContent=processed?'No flagged windows yet':'No replay events yet';empty.querySelector('.sw-sub').textContent=processed?`Processed ${fN(processed)} benchmark chunks; this timeline shows only model-flagged windows.`:'Start the historical replay to score benchmark chunks.';return;}
+  canvas.style.display='block';empty.style.display='none';
+  canvas.width=Math.max(260,canvas.parentElement.offsetWidth-36);
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD={t:13,r:16,b:37,l:43};
+  const cW=W-PAD.l-PAD.r,cH=H-PAD.t-PAD.b;
+  const pts=eps.map(ep=>({ts:new Date(ep.timestamp||ep.detected_at),chunks:Number(ep.flagged_chunks)||0,sym:ep.symbol||'—',risk:Number(ep.peak_risk_score)||0,truth:ep.ground_truth})).filter(p=>Number.isFinite(p.ts.getTime())).sort((a,b)=>a.ts-b.ts);
+  if(!pts.length)return;
+  const minTs=pts[0].ts.getTime(),maxTs=pts[pts.length-1].ts.getTime();
+  const maxChunks=Math.max(...pts.map(p=>p.chunks),1);
+  const gStyle='rgba(204,216,230,.65)';const hits=[];
+  ctx.strokeStyle=gStyle;ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=PAD.t+cH*(1-i/4);ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cW,y);ctx.stroke();ctx.fillStyle='#71869e';ctx.font='9px sans-serif';ctx.textAlign='right';ctx.fillText(String(Math.round(maxChunks*i/4)),PAD.l-7,y+3);}
+  const bW=Math.max(5,Math.min(24,cW/Math.max(pts.length,1)-3));
+  pts.forEach((p,i)=>{
+    const x=pts.length>1&&maxTs>minTs?PAD.l+((p.ts.getTime()-minTs)/(maxTs-minTs))*cW:PAD.l+cW/2;
+    const bH=(p.chunks/maxChunks)*cH;
+    const y=PAD.t+cH-bH;
+    ctx.fillStyle=p.risk>=.8?'rgba(217,87,95,.88)':'rgba(50,112,204,.82)';ctx.fillRect(x-bW/2,y,bW,bH);
+    hits.push({x,y,ts:p.ts,chunks:p.chunks,sym:p.sym,risk:p.risk,truth:p.truth});
+  });
+  const tick=t=>t.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit',timeZone:'UTC'})+' '+t.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
+  ctx.fillStyle='#71869e';ctx.font='9px sans-serif';ctx.textAlign='left';ctx.fillText(tick(pts[0].ts),PAD.l,H-4);ctx.textAlign='right';ctx.fillText(tick(pts[pts.length-1].ts),PAD.l+cW,H-4);
+  ctx.fillStyle='#536980';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('Benchmark event time · flagged chunks per unique window',W/2,H-20);
+  canvas.setAttribute('aria-label',`Timeline of ${pts.length} model-flagged benchmark windows, grouped by unique event ID.`);
+  canvas.onmousemove=e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*canvas.width/r.width,y=(e.clientY-r.top)*canvas.height/r.height;let best=null,dist=Infinity;for(const h of hits){const d=Math.hypot(x-h.x,y-(h.y+Math.min(10,cH*.12)));if(d<dist){best=h;dist=d;}}if(best&&dist<22){const gt=best.truth===1?' · dataset label: pump':best.truth===0?' · dataset label: normal':'';canvas.title=`${best.sym} · ${tick(best.ts)}\n${best.chunks} flagged 5-second chunks · peak raw score ${fP(best.risk)}${gt}`;}else canvas.title='Flagged chunks per unique benchmark window; hover a bar for details.';};
+  canvas.title='Flagged chunks per unique benchmark window; hover a bar for details.';
+}
+
+function updateRiskChart(events){
+  const canvas=document.getElementById('chart-risk');
+  const empty=document.getElementById('chart-risk-empty');
+  const scores=(events||[]).map(e=>Number(e.risk_score)).filter(Number.isFinite);
+  if(!scores.length){canvas.style.display='none';empty.style.display='block';empty.querySelector('.sw-title').textContent='No risk scores yet';empty.querySelector('.sw-sub').textContent='Model scores appear after benchmark chunks are processed.';return;}
+  canvas.style.display='block';empty.style.display='none';
+  canvas.width=Math.max(260,canvas.parentElement.offsetWidth-36);
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const PAD={t:12,r:14,b:36,l:44};
+  const cW=W-PAD.l-PAD.r,cH=H-PAD.t-PAD.b;
+  // Bucket risk scores into 10 buckets
+  const BUCKETS=10;const counts=new Array(BUCKETS).fill(0);
+  scores.forEach(score=>{const i=Math.min(BUCKETS-1,Math.max(0,Math.floor(score*BUCKETS)));counts[i]++;});
+  const maxC=Math.max(...counts,1);
+  const gStyle='rgba(204,216,230,.65)';
+  for(let i=0;i<=4;i++){const y=PAD.t+cH*(1-i/4);ctx.strokeStyle=gStyle;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cW,y);ctx.stroke();ctx.fillStyle='#7a8ca3';ctx.font='9px sans-serif';ctx.textAlign='right';ctx.fillText(Math.round(maxC*i/4),PAD.l-5,y+3);}
+  const bW=(cW/BUCKETS)-3;
+  counts.forEach((c,i)=>{
+    const x=PAD.l+i*(cW/BUCKETS)+2;const bH=(c/maxC)*cH;const y=PAD.t+cH-bH;
+    ctx.fillStyle=i<4?'rgba(19,134,108,.78)':i===4?'rgba(200,122,34,.82)':'rgba(217,87,95,.82)';
+    ctx.fillRect(x,y,bW,bH);
+    ctx.fillStyle='#71869e';ctx.font='8px sans-serif';ctx.textAlign='center';ctx.fillText((i/10).toFixed(1)+'–'+((i+1)/10).toFixed(1),x+bW/2,H-4);
+  });
+  ctx.fillStyle='#536980';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('Raw XGBoost score interval · recent classified chunks',W/2,H-20);
+  canvas.setAttribute('aria-label',`Risk score histogram of ${scores.length} recent classified benchmark chunks. The alert threshold is 0.50.`);
+  canvas.onmousemove=e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*canvas.width/r.width;const i=Math.floor((x-PAD.l)/(cW/BUCKETS));if(i>=0&&i<BUCKETS){canvas.title=`Score ${(i/10).toFixed(1)}–${((i+1)/10).toFixed(1)} · ${fN(counts[i])} recent chunks · ${i>=5?'model-flag threshold met':'below 0.50 threshold'}. Raw, uncalibrated XGBoost output.`;}else canvas.title='Recent event scores; model-flag threshold 0.50.';};
+  canvas.title='Recent event scores; model-flag threshold 0.50.';
+}
+
+/* ── Stream ── */
+async function streamStart(){
+  const sp=parseFloat(document.getElementById('spd-sel').value);
+  try{const r=await fetch(API+'/api/stream/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({speed:sp})});
+    const d=await r.json();if(d.ok){toast('Stream started at '+sp+'×','success');}else{toast(d.msg||'Already running','warn');}
+  }catch{toast('Cannot reach backend','error');}refreshStr();
+}
+async function streamPause(){try{const r=await fetch(API+'/api/stream/pause',{method:'POST'});const d=await r.json();toast(d.msg,d.ok?'info':'warn');}catch(e){toast('Pause failed: '+e.message,'error');}refreshStr();}
+async function streamResume(){try{const r=await fetch(API+'/api/stream/resume',{method:'POST'});const d=await r.json();toast(d.msg,d.ok?'info':'warn');}catch(e){toast('Resume failed: '+e.message,'error');}refreshStr();}
+async function streamStop(){try{const r=await fetch(API+'/api/stream/stop',{method:'POST'});const d=await r.json();toast(d.msg||'Stopped',d.ok?'info':'warn');}catch(e){toast('Stop failed: '+e.message,'error');}refreshStr();}
+async function streamSetSpeed(v){try{const r=await fetch(API+'/api/stream/speed',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({speed:parseFloat(v)})});if(!r.ok)throw new Error('HTTP '+r.status);}catch(e){toast('Could not set replay speed: '+e.message,'error');}}
+
+async function refreshStr(){
+  try{const r=await fetch(API+'/api/stream/status');if(!r.ok)return;const d=await r.json();
+    const pl=d.pipeline||{};const gw=d.graph||{};const st=d.status||'stopped';
+    _lastStreamStatus=st;
+    document.getElementById('str-proc').textContent=fN(d.processed);
+    document.getElementById('str-eps').textContent=(d.events_per_sec||0).toFixed(2);
+    document.getElementById('str-q').textContent=fN(d.queue_size);
+    document.getElementById('str-al').textContent=fN(pl.alerts_generated);
+    document.getElementById('str-gw').textContent=fN(gw.written);
+    document.getElementById('str-err').textContent=pl.errors||0;
+    document.getElementById('str-ts').textContent='Last event: '+(d.latest_event_ts||'—');
+    const complete=st==='stopped'&&(d.total||0)>0&&(d.position||0)>=d.total;
+    const sMap={running:'b-run',stopped:complete?'b-info':'b-stop',paused:'b-pause'};
+    const sLabel={running:'Running',stopped:complete?'Feed complete':'Stopped',paused:'Paused'};
+    document.getElementById('str-sb').innerHTML=`<span class="badge ${sMap[st]||'b-stop'}">${sLabel[st]||st}</span>`;
+    document.getElementById('sb-start').disabled=st==='running';
+    document.getElementById('sb-pause').disabled=st!=='running';
+    document.getElementById('sb-resume').disabled=st!=='paused';
+    document.getElementById('sb-stop').disabled=st==='stopped';
+    document.getElementById('btn-hdr-start').disabled=st==='running';
+    document.getElementById('btn-hdr-stop').disabled=st==='stopped';
+    document.getElementById('replay-pill').style.display=st==='running'?'flex':'none';
+    const pct=Math.min(((d.position||0)/Math.max(d.total||d.position||1,1))*100,100);
+    document.getElementById('str-pf').style.width=pct.toFixed(1)+'%';
+    document.getElementById('str-pl').textContent=d.total?(complete?'Feed complete · ':'')+fN(d.position)+' / '+fN(d.total)+' rows in this replay ('+pct.toFixed(1)+'%)':'No replay session yet';
+  }catch(e){toast('Unable to refresh replay status: '+e.message,'error');}
+}
+
+let _feedActive=true;
+function toggleFeed(){_feedActive=!_feedActive;document.getElementById('feed-btn').textContent=_feedActive?'Pause Feed':'Resume Feed';}
+async function pollFeed(){
+  if(!_feedActive)return;
+  try{const r=await fetch(API+'/api/events?limit=5');if(!r.ok)return;
+    const d=await r.json();const evs=d.events||[];
+    const el=document.getElementById('ev-feed');if(!el)return;
+    evs.reverse().forEach(e=>{
+      const feedKey=String(e.sequence)+':'+String(e.processing_timestamp||e.event_timestamp);
+      if(_feedSeen.has(feedKey))return;
+      _feedSeen.add(feedKey);if(_feedSeen.size>500){_feedSeen=new Set(Array.from(_feedSeen).slice(-300));}
+      const ip=e.label==='PUMP_AND_DUMP';const ln=document.createElement('div');
+      ln.className='feed-ln'+(ip?' pump':'');
+      ln.innerHTML=`<span class="fts">${sTs(e.event_timestamp)}</span><span class="fsym">${esc(e.symbol)}</span><span style="color:var(--text2)">price=${fPr(e.price)} vol=${(e.volume||0).toFixed(4)} n_trades=${e.n_trades}</span><span style="${ip?'color:var(--red);font-weight:700':'color:var(--green);font-weight:600'}">${ip?'PUMP '+fP(e.risk_score):'normal '+fP(e.risk_score)}</span>`;
+      _feedLines.unshift(ln);if(_feedLines.length>80)_feedLines.pop();
+    });
+    if(evs.length){el.innerHTML='';_feedLines.forEach(l=>el.appendChild(l));}
+  }catch{}
+}
+
+/* ── Events ── */
+let _evD=null,_eventOffset=0;
+function evD(){clearTimeout(_evD);_eventOffset=0;_evD=setTimeout(loadEvents,350);}
+function resetEvents(){_eventOffset=0;loadEvents();}
+function stepEventPage(direction){const size=Number(document.getElementById('ev-lim').value)||100;_eventOffset=Math.max(0,_eventOffset+direction*size);loadEvents();}
+function toggleEventDetail(id,button){const row=document.getElementById(id);if(!row)return;const open=row.style.display!=='table-row';row.style.display=open?'table-row':'none';button.setAttribute('aria-expanded',String(open));button.textContent=open?'Hide':'Details';}
+async function loadEvents(){
+  const sym=(document.getElementById('ev-sym')||{}).value||'';
+  const query=(document.getElementById('ev-q')||{}).value||'';
+  const lbl=(document.getElementById('ev-lbl')||{}).value||'';
+  const mr=(document.getElementById('ev-risk')||{}).value||'0';
+  const lim=(document.getElementById('ev-lim')||{}).value||'100';
+  const [sort,order]=((document.getElementById('ev-sort')||{}).value||'timestamp:desc').split(':');
+  const from=(document.getElementById('ev-from')||{}).value||'',to=(document.getElementById('ev-to')||{}).value||'';
+  const p=new URLSearchParams({limit:lim,offset:String(_eventOffset),sort,order,symbol:sym.toUpperCase(),label:lbl,min_risk:mr,q:query,from,to});
+  const tb=document.getElementById('ev-tbody');
+  tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:20px;color:var(--text3)"><span style="animation:spin360 .8s linear infinite;display:inline-block;font-size:18px">&#8635;</span> Loading recent events…</td></tr>';
+  try{const r=await fetch(API+'/api/events?'+p.toString());
+    if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();const evs=d.events||[];
+    const cl=document.getElementById('ev-cnt');
+    if(cl)cl.textContent=evs.length?`${fN(d.count)} matching rows in recent-memory window`:' ';
+    const prev=document.getElementById('ev-prev'),next=document.getElementById('ev-next');
+    prev.disabled=_eventOffset<=0;next.disabled=!d.has_more;
+    document.getElementById('ev-page-note').textContent=d.count?`Showing ${fN(_eventOffset+1)}–${fN(_eventOffset+evs.length)} of ${fN(d.count)} matches · recent ${fN(d.window_size)} in-memory events only`:'No matches in the current recent-memory window.';
+    if(!evs.length){tb.innerHTML='<tr><td colspan="10"><div class="sw"><div class="sw-ico">⌕</div><div class="sw-title">No matching events</div><div class="sw-sub">Try another symbol, score threshold, label, or search term.</div></div></td></tr>';return;}
+    tb.innerHTML=evs.map((e,i)=>{
+      const pump=e.label==='PUMP_AND_DUMP';const ch=e.price_change_pct;const top=(e.explanation||[])[0];
+      const detailId='event-detail-'+i;const truth=e.ground_truth??e.is_pump;
+      const truthLabel=truth===1||truth===true||truth==='1'?'Pump label':truth===0||truth===false||truth==='0'?'Normal label':'Not present';
+      const details=(e.explanation||[]).map(x=>`<div class="event-detail-item"><strong>${esc(x.feature)}</strong>${Number(x.value).toFixed(6)} · gain ${(Number(x.importance)*100).toFixed(1)}%</div>`).join('');
+      return`<tr>
+        <td class="mono" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(e.event_id||'')}">${esc((e.event_id||'—').slice(0,20))}</td>
+        <td><strong style="color:var(--blue)">${esc(e.symbol||'—')}</strong></td>
+        <td style="white-space:nowrap;font-size:10px;color:var(--text3)" title="${esc(e.event_timestamp||'')}">${sTs(e.event_timestamp)}</td>
+        <td style="${ch>0?'color:var(--green)':'color:var(--red)'}">${fC(ch)}</td>
+        <td>${fN(e.n_trades)}</td>
+        <td class="mono">${Number(e.volume||0).toFixed(4)}</td>
+        <td>${rBar(e.risk_score)}</td>
+        <td><span class="badge ${pump?'b-pump':'b-norm'}">${pump?'PREDICTED PUMP':'PREDICTED NORMAL'}</span></td>
+        <td style="font-size:10px;color:var(--text3)">${top?esc(top.feature)+'='+Number(top.value).toFixed(4):'—'}</td>
+        <td><button class="btn btn-ghost btn-xs" aria-expanded="false" onclick="toggleEventDetail('${detailId}',this)">Details</button></td>
+      </tr><tr class="event-detail-row" id="${detailId}" style="display:none"><td colspan="10"><div class="event-detail-grid"><div class="event-detail-item"><strong>Full window ID</strong>${esc(e.event_id||'—')}</div><div class="event-detail-item"><strong>Model score</strong>${fP(e.risk_score)} · raw, uncalibrated</div><div class="event-detail-item"><strong>Prediction</strong>${pump?'Model flagged (threshold 0.50)':'Model normal (threshold 0.50)'}</div><div class="event-detail-item"><strong>Source label</strong>${truthLabel} — shown only for review</div>${details}</div></td></tr>`;
+    }).join('');
+  }catch(e){tb.innerHTML='<tr><td colspan="10" style="color:var(--red);padding:16px;text-align:center">Events could not be loaded: '+esc(e.message)+'</td></tr>';document.getElementById('ev-page-note').textContent='Check the backend connection, then refresh.';}
+}
+
+/* ── Alerts ── */
+let _alOffset=0;
+function alD(){clearTimeout(_alT);_alOffset=0;_alT=setTimeout(loadAlerts,350);}
+function resetAlerts(){_alOffset=0;loadAlerts();}
+function stepAlertPage(direction){_alOffset=Math.max(0,_alOffset+direction*50);loadAlerts();}
+async function loadAlerts(){
+  const filt=(document.getElementById('al-filt')||{}).value||'all';
+  const query=(document.getElementById('al-q')||{}).value||'';
+  document.getElementById('al-list').innerHTML='<div style="text-align:center;padding:32px;color:var(--text3)"><span style="font-size:22px;animation:spin360 .8s linear infinite;display:inline-block">&#8635;</span></div>';
+  try{const risk=(document.getElementById('al-risk')||{}).value||'0';const from=(document.getElementById('al-from')||{}).value||'',to=(document.getElementById('al-to')||{}).value||'';const q=new URLSearchParams({limit:'50',offset:String(_alOffset),q:query,min_risk:risk,ack:filt,from,to});const r=await fetch(API+'/api/alerts/episodes?'+q);
+    if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();const eps=d.episodes||[];
+    document.getElementById('al-ep').textContent=fN(d.filtered_episodes);
+    document.getElementById('al-ch').textContent=fN(d.total_alert_chunks);
+    document.getElementById('al-cnt').textContent=`${fN(d.filtered_episodes)} matching episode${d.filtered_episodes!==1?'s':''}`;
+    const previous=document.getElementById('al-prev'),next=document.getElementById('al-next');previous.disabled=_alOffset<=0;next.disabled=!d.has_more;
+    document.getElementById('al-page-note').textContent=d.filtered_episodes?`Showing ${fN(_alOffset+1)}–${fN(_alOffset+eps.length)} of ${fN(d.filtered_episodes)} matching episodes · ${fN(d.total_alert_chunks)} flagged chunks`:'No episodes match the active filters.';
+    if(!eps.length){const empty=d.total_episodes===0;document.getElementById('al-list').innerHTML=`<div class="sw" style="padding:38px"><div class="sw-ico">⌕</div><div class="sw-title">${empty?'No model-flagged episodes yet':'No episodes match these filters'}</div><div class="sw-sub">${empty?'Start historical replay to score the benchmark. Episodes appear only when the model score reaches the configured threshold.':'Clear the symbol search or lower the peak-score filter to inspect more episodes.'}</div>${empty?'<button class="btn btn-blue btn-sm" onclick="streamStart()">Start Replay</button>':''}</div>`;return;}
+    const openDetails=new Set(Array.from(document.querySelectorAll('#al-list .ac-det.open')).map(el=>el.id));
+    document.getElementById('al-list').innerHTML=eps.map(ep=>buildAC(ep)).join('');
+    openDetails.forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('open');});
+  }catch(e){document.getElementById('al-list').innerHTML='<div style="color:var(--red);text-align:center;padding:24px">Episode data unavailable: '+esc(e.message)+' · refresh after checking the backend.</div>';}
+}
+
+function buildAC(ep){
+  const dId='d'+ep.episode_id.replace(/[^a-zA-Z0-9]/g,'_');
+  const feats=(ep.explanation||[]).map(f=>{const imp=Math.min(f.importance*100,100);const val=typeof f.value==='number'?(Math.abs(f.value)<1&&f.value!==0?f.value.toFixed(6):f.value.toFixed(4)):f.value;return`<div class="fr"><div class="fn">${esc(f.feature)}</div><div class="ft"><div class="ff" style="width:${imp.toFixed(0)}%"></div></div><div class="fv">${esc(String(val))}</div><div class="fi">imp:${(f.importance*100).toFixed(1)}%</div></div>`;}).join('');
+  const ack=ep.acknowledged;
+  return`<div class="ac${ack?' ack':''}">
+    <div class="ach" onclick="toggleD('${dId}')">
+      <div>
+        <div class="ac-sym">${esc(ep.symbol)} <span class="badge b-pred" style="margin-left:6px;font-size:9px">PREDICTED PUMP</span>${ack?' <span class="badge b-stop" style="margin-left:4px;font-size:9px">ACK</span>':''}</div>
+        <div class="ac-meta">Episode: <span style="font-family:monospace;color:var(--text2)">${esc(ep.episode_id)}</span><br>Detected: ${fTs(ep.timestamp)} &middot; ${ep.flagged_chunks} chunks flagged</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        ${rPill(ep.peak_risk_score)}<div style="font-size:9px;color:var(--text3);margin-top:3px">peak &middot; avg ${fP(ep.avg_risk_score)}</div>
+        <div style="margin-top:6px;display:flex;gap:5px;justify-content:flex-end">
+          ${!ack?`<button class="btn btn-out btn-xs" onclick="event.stopPropagation();ackEp('${esc(ep.episode_id)}')">Acknowledge</button>`:''}
+          <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();toggleD('${dId}')">&#9662; Detail</button>
+        </div>
+      </div>
+    </div>
+    <div class="ac-det" id="${dId}">
+      <div style="font-size:10px;font-weight:700;color:var(--text2);margin-bottom:8px">Top model-ranked features on the peak-scored chunk (global importances, not per-event causal attribution):</div>
+      ${feats||'<div style="color:var(--text3);font-size:10px">No explanation available</div>'}
+      <div style="margin-top:10px;font-size:10px;color:var(--text3)">Retrospective benchmark label: <strong style="color:${ep.ground_truth===1?'var(--orange)':ep.ground_truth===0?'var(--green)':'var(--text3)'}">${ep.ground_truth===1?'Pump-labeled window (is_pump=1)':ep.ground_truth===0?'Normal-labeled window (is_pump=0)':'Unavailable'}</strong> &mdash; The source label is shown for benchmark review only; it is not used as an inference feature and does not independently confirm a real-world incident. Scores are raw XGBoost output probabilities.</div>
+    </div>
+  </div>`;
+}
+function toggleD(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
+async function ackEp(eid){
+  try{const r=await fetch(API+'/api/alerts/episodes/'+encodeURIComponent(eid)+'/acknowledge',{method:'POST'});if(!r.ok)throw new Error('HTTP '+r.status);
+    toast('Episode acknowledged','success');loadAlerts();
+  }catch{toast('Ack failed','error');}
+}
+
+/* ── Graph ── */
+let gN=[],gE=[],gPos={},gDrag=null,gDOX=0,gDOY=0,gHov=null,gPan=null,gScale=1,gOffsetX=0,gOffsetY=0;
+let gCvs,gCtx;
+function initGraph(){
+  gCvs=document.getElementById('gcanvas');if(!gCvs)return;
+  gCtx=gCvs.getContext('2d');
+  gCvs.addEventListener('mousemove',onGMM);gCvs.addEventListener('mousedown',onGMD);gCvs.addEventListener('wheel',onGW,{passive:false});
+  window.addEventListener('mouseup',()=>{gDrag=null;gPan=null;});
+  gCvs.addEventListener('mouseleave',()=>{gHov=null;gDrag=null;gPan=null;document.getElementById('gtip').style.display='none';renderG();});
+  window.addEventListener('resize',()=>{if(gCvs){gCvs.width=gCvs.parentElement.offsetWidth||700;renderG();}});
+  gCvs.width=gCvs.parentElement.offsetWidth||700;gCvs.height=420;
+}
+async function loadGStats(){
+  try{const r=await fetch(API+'/api/graph/stats');if(!r.ok)return;const g=await r.json();
+    document.getElementById('g-nd').textContent=fN(g.total_nodes);
+    document.getElementById('g-ed').textContent=fN(g.total_edges);
+    const nt=g.node_types||{};
+    document.getElementById('g-me').textContent=fN(nt.MarketEvent||0);
+    document.getElementById('g-as').textContent=fN(nt.CryptoAsset||0);
+    document.getElementById('g-su').textContent=fN(g.suspicious_events||0);
+    document.getElementById('g-pg').textContent=fN(nt.PumpGroup||0);
+    document.getElementById('h-graph').textContent=g.total_nodes>0?g.total_nodes+' nodes':'Empty';
+    document.getElementById('h-graph').style.color=g.total_nodes>0?'var(--green)':'var(--text3)';
+  }catch{}
+}
+async function loadGraph(){
+  const lim=Math.max(20,Math.min(300,parseInt(document.getElementById('g-lim').value)||120)),status=document.getElementById('g-status');
+  status.textContent='Loading current in-memory graph…';
+  try{const r=await fetch(API+'/api/graph/nodes?limit='+lim);if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();gN=(d.nodes||[]).slice(0,lim);gE=d.edges||[];initGPos();renderG();loadSusList();status.textContent=gN.length?`Showing ${fN(gN.length)} nodes · ${fN(gE.length)} returned edges`:'Graph is empty until replayed events are written.';
+  }catch(e){status.textContent='Graph request failed: '+e.message;gN=[];gE=[];renderG();}
+}
+async function loadSusOnly(){
+  const status=document.getElementById('g-status');
+  try{const r=await fetch(API+'/api/graph/suspicious?limit=200');if(!r.ok)throw new Error('HTTP '+r.status);
+    const d=await r.json();gN=d.suspicious||[];gE=[];initGPos();renderG();status.textContent=gN.length?`Suspicious event nodes only · ${fN(gN.length)} visible; relationships hidden`:'No model-flagged graph nodes in the current in-memory graph.';
+  }catch(e){status.textContent='Suspicious-node request failed: '+e.message;}
+}
+async function loadSusList(){
+  try{const r=await fetch(API+'/api/graph/suspicious?limit=50');if(!r.ok)return;
+    const d=await r.json();const sus=d.suspicious||[];
+    const el=document.getElementById('g-sus-list');
+    if(!sus.length){el.innerHTML='<div class="sw" style="padding:20px"><div class="sw-sub" style="margin-bottom:0">No suspicious events yet — start replay</div></div>';return;}
+    el.innerHTML=sus.map(n=>{const p=n.properties||{};return`<div style="padding:7px 14px;border-bottom:1px solid var(--border2);cursor:pointer;transition:background .1s" onmouseenter="this.style.background='var(--bl)'" onmouseleave="this.style.background=''">
+      <div style="font-weight:700;color:var(--red)">${esc(p.symbol||n.id)} <span style="font-size:9px;font-weight:400;color:var(--text3);font-family:monospace">${esc(n.id)}</span></div>
+      <div style="font-size:10px;color:var(--text3)">${rPill(p.risk_score)} &middot; ${sTs(p.timestamp)}</div>
+    </div>`;}).join('');
+  }catch{}
+}
+function initGPos(){
+  const W=gCvs?gCvs.width:700,H=gCvs?gCvs.height:450;
+  gN.forEach((n,i)=>{if(gPos[n.id])return;
+    const a=(i/Math.max(gN.length,1))*Math.PI*2;const rad=Math.min(W,H)*0.36;
+    gPos[n.id]={x:W/2+rad*Math.cos(a),y:H/2+rad*Math.sin(a)};
+  });
+}
+function nCol(n){if(n.type==='CryptoAsset')return'#3b82f6';if(n.type==='PumpGroup')return'#7c3aed';return(n.properties||{}).suspicious?'#ef4444':'#10b981';}
+function nRad(n){if(n.type==='CryptoAsset')return 11;if(n.type==='PumpGroup')return 9;return 5;}
+function renderG(){
+  if(!gCtx||!gCvs)return;const W=gCvs.width,H=gCvs.height;
+  gCtx.clearRect(0,0,W,H);gCtx.fillStyle='#f7faff';gCtx.fillRect(0,0,W,H);
+  if(!gN.length){
+    gCtx.fillStyle='#536780';gCtx.font='13px sans-serif';gCtx.textAlign='center';
+    gCtx.fillText('No graph data — start the replay to populate',W/2,H/2-16);
+    gCtx.fillStyle='#1769e8';gCtx.font='11px sans-serif';
+    gCtx.fillText('Graph builds as events stream through the pipeline',W/2,H/2+6);
+    return;
+  }
+  gCtx.save();gCtx.translate(gOffsetX,gOffsetY);gCtx.scale(gScale,gScale);
+  const ns=new Set(gN.map(n=>n.id));
+  gE.forEach(e=>{if(!ns.has(e.source)||!ns.has(e.target))return;const s=gPos[e.source],t=gPos[e.target];if(!s||!t)return;
+    gCtx.beginPath();gCtx.strokeStyle=e.type==='ORGANIZED_BY'?'rgba(124,58,237,.4)':e.type==='NEXT'?'rgba(59,130,246,.2)':'rgba(59,130,246,.25)';gCtx.lineWidth=0.9;gCtx.moveTo(s.x,s.y);gCtx.lineTo(t.x,t.y);gCtx.stroke();
+  });
+  gN.forEach(n=>{const pos=gPos[n.id];if(!pos)return;const r=nRad(n);
+    gCtx.beginPath();gCtx.arc(pos.x,pos.y,r,0,Math.PI*2);gCtx.fillStyle=nCol(n);gCtx.fill();
+    if(n===gHov){gCtx.strokeStyle='#fff';gCtx.lineWidth=2.5;gCtx.stroke();}
+    if(n.type!=='MarketEvent'||(n.properties||{}).suspicious){
+      const lbl=n.type==='CryptoAsset'?(n.properties||{}).symbol||n.id.replace('asset_',''):n.type==='PumpGroup'?n.id.replace('group_',''):(n.properties||{}).symbol||'';
+      if(lbl){gCtx.fillStyle='#243b5a';gCtx.font=`${n.type==='CryptoAsset'?'bold ':''}9px sans-serif`;gCtx.textAlign='center';gCtx.fillText(lbl,pos.x,pos.y-(r+4));}
+    }
+  });
+  gCtx.restore();
+}
+function graphPoint(e){const r=gCvs.getBoundingClientRect();return{x:(e.clientX-r.left)*gCvs.width/r.width,y:(e.clientY-r.top)*gCvs.height/r.height};}
+function setGraphZoom(next,x=gCvs.width/2,y=gCvs.height/2){const bounded=Math.max(.5,Math.min(2.8,next));const wx=(x-gOffsetX)/gScale,wy=(y-gOffsetY)/gScale;gScale=bounded;gOffsetX=x-wx*gScale;gOffsetY=y-wy*gScale;document.getElementById('g-zoom').textContent=Math.round(gScale*100)+'%';renderG();}
+function zoomGraph(factor){setGraphZoom(gScale*factor);}
+function resetGraphView(){gScale=1;gOffsetX=0;gOffsetY=0;gPos={};initGPos();document.getElementById('g-zoom').textContent='100%';renderG();}
+function onGW(e){e.preventDefault();const p=graphPoint(e);setGraphZoom(gScale*(e.deltaY<0?1.1:.9),p.x,p.y);}
+function onGMM(e){
+  const p=graphPoint(e),mx=p.x,my=p.y;
+  if(gPan){gOffsetX=gPan.ox+(mx-gPan.x);gOffsetY=gPan.oy+(my-gPan.y);renderG();return;}
+  const wx=(mx-gOffsetX)/gScale,wy=(my-gOffsetY)/gScale;
+  if(gDrag){gPos[gDrag.id]={x:wx+gDOX,y:wy+gDOY};renderG();return;}
+  gHov=null;const tip=document.getElementById('gtip');
+  for(const n of gN){const pos=gPos[n.id];if(!pos)continue;if((wx-pos.x)**2+(wy-pos.y)**2<(nRad(n)+5)**2){gHov=n;break;}}
+  if(gHov){
+    const pr=gHov.properties||{};
+    const lines=Object.entries(pr).slice(0,8).map(([k,v])=>{const vd=typeof v==='number'?(Math.abs(v)<1&&v!==0?v.toFixed(6):v):v;return`<div><span style="color:var(--text3)">${esc(k)}:</span> <span style="color:var(--blue);font-weight:600">${esc(String(vd))}</span></div>`;}).join('');
+    tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-18)+'px';
+    tip.innerHTML=`<div style="font-weight:800;color:var(--navy);margin-bottom:7px;border-bottom:1px solid var(--border2);padding-bottom:5px">${esc(gHov.type)}</div>${lines}`;
+  }else{tip.style.display='none';}
+  renderG();
+}
+function onGMD(e){
+  const point=graphPoint(e),wx=(point.x-gOffsetX)/gScale,wy=(point.y-gOffsetY)/gScale;
+  if(!gHov){gPan={x:point.x,y:point.y,ox:gOffsetX,oy:gOffsetY};return;}
+  gDrag=gHov;const p=gPos[gDrag.id];gDOX=p.x-wx;gDOY=p.y-wy;
+  const pr=gHov.properties||{};
+  document.getElementById('g-det').innerHTML=`<div style="margin-bottom:10px"><span class="badge b-info">${esc(gHov.type)}</span></div><div class="mono" style="margin-bottom:10px;word-break:break-all;font-size:10px;color:var(--text2)">${esc(gHov.id)}</div>`+Object.entries(pr).map(([k,v])=>{const vd=typeof v==='number'?(Math.abs(v)<1&&v!==0?v.toFixed(6):v):v;return`<div class="ir"><span class="ik">${esc(k)}</span><span class="iv">${esc(String(vd))}</span></div>`;}).join('');
+}
+
+/* ── Evaluation ── */
+async function loadEval(){
+  document.getElementById('eval-load').style.display='block';
+  document.getElementById('eval-con').style.display='none';
+  document.getElementById('eval-na').style.display='none';
+  document.getElementById('eval-error').style.display='none';
+  try{const r=await fetch(API+'/api/evaluation',{signal:AbortSignal.timeout(8000)});document.getElementById('eval-load').style.display='none';
+    if(!r.ok)throw new Error('HTTP '+r.status);const m=await r.json();
+    if(!m.available){document.getElementById('eval-na').style.display='block';return;}
+    document.getElementById('eval-con').style.display='block';
+    document.getElementById('ev-acc').textContent=fP(m.accuracy);document.getElementById('ev-prec').textContent=fP(m.precision);document.getElementById('ev-rec').textContent=fP(m.recall);
+    document.getElementById('ev-f1').textContent=fP(m.f1);document.getElementById('ev-prauc').textContent=fP(m.pr_auc);
+    const cm=m.confusion_matrix||[[0,0],[0,0]];
+    document.getElementById('ev-tn').textContent=fN(cm[0][0]);document.getElementById('ev-fp').textContent=fN(cm[0][1]);
+    document.getElementById('ev-fn').textContent=fN(cm[1][0]);document.getElementById('ev-tp').textContent=fN(cm[1][1]);
+    document.getElementById('ev-extra').innerHTML=`<div class="ir"><span class="ik">Specificity (normal recall)</span><span class="iv">${fP(m.specificity)}</span></div><div class="ir"><span class="ik">Baseline F1 (all-normal)</span><span class="iv">${fP(m.baseline_f1_all_normal)}</span></div><div class="ir"><span class="ik">Alert threshold in replay</span><span class="iv">0.50 raw score</span></div><div class="ir"><span class="ik">Metric source</span><span class="iv">Saved models/eval_metrics.json</span></div>`;
+    const fi=m.feature_importances||{};const sorted=Object.entries(fi).sort((a,b)=>b[1]-a[1]);const mx=sorted[0]?sorted[0][1]:1;
+    document.getElementById('ev-fi').innerHTML=sorted.map(([f,v])=>`<div class="fir"><div class="fin" title="${esc(f)}">${esc(f)}</div><div class="fit"><div class="fif" style="width:${(v/mx*100).toFixed(0)}%"></div></div><div class="fiv">${(v*100).toFixed(1)}%</div></div>`).join('');
+    document.getElementById('ev-spl').innerHTML=['Train','Validation','Test'].map((k,i)=>{const vals=[m.train_size,m.val_size,m.test_size];const tot=(m.train_size||0)+(m.val_size||0)+(m.test_size||0);const pct=((vals[i]||0)/Math.max(tot,1)*100).toFixed(0);return`<div class="ir"><span class="ik">${k}</span><span class="iv">${fN(vals[i])} rows (${pct}%)</span></div>`;}).join('');
+    const dist=m.class_distribution||{},pc=m.per_class||{};
+    const row=(label,x)=>`<tr><td>${label}</td><td>${fP(x?.precision)}</td><td>${fP(x?.recall)}</td><td>${fP(x?.f1)}</td><td>${fN(x?.support)}</td></tr>`;
+    document.getElementById('ev-cls').innerHTML=`<table class="class-metrics"><thead><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Support</th></tr></thead><tbody>${row('Normal',pc.normal)}${row('Pump',pc.pump)}</tbody></table><div class="ir" style="margin-top:10px"><span class="ik">Pump share · train</span><span class="iv">${fP(dist.train_pump_ratio)}</span></div><div class="ir"><span class="ik">Pump share · test</span><span class="iv">${fP(dist.test_pump_ratio)}</span></div><div class="ir"><span class="ik">Split</span><span class="iv">Chronological 70 / 15 / 15</span></div><div style="margin-top:8px;font-size:10px;color:var(--text3);line-height:1.5">Per-class values are calculated from the saved test confusion matrix. Because pump rows are the minority class, inspect precision, recall, support, and the confusion matrix together—not accuracy alone.</div>`;
+  }catch(e){document.getElementById('eval-load').style.display='none';document.getElementById('eval-error').style.display='flex';document.getElementById('eval-error-text').textContent=` ${e.message||'Network or server error'}`;}
+}
+
+/* ── Dataset ── */
+async function loadDs(){
+  const sum=document.getElementById('ds-sum');
+  try{const r=await fetch(API+'/api/dataset',{signal:AbortSignal.timeout(8000)});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();
+    const dateFmt=x=>x?new Date(x).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}):'—';
+    const missing=Number(d.missing_cells||0),missingCols=Object.entries(d.missing_by_column||{}).filter(([,n])=>Number(n)>0);
+    const missingText=missing===0?'No missing cells found in the bundled CSV':`${fN(missing)} missing cells`+(missingCols.length?` (${missingCols.map(([k,n])=>`${esc(k)}: ${fN(n)}`).join(', ')})`:'');
+    const parseNote=d.error?`<div style="color:var(--orange);font-size:10px;margin-top:8px">${esc(d.error)}</div>`:'';
+    sum.innerHTML=`<div class="dataset-range"><span>Historical coverage</span><strong>${dateFmt(d.start_date)} – ${dateFmt(d.end_date)} UTC</strong></div><div class="ir"><span class="ik">Local file status</span><span class="iv"><span class="badge ${d.ready?'b-run':'b-stop'}">${d.ready?'Ready':'Not found'}</span></span></div><div class="ir"><span class="ik">Labeled 5-second rows</span><span class="iv" style="font-weight:800;color:var(--blue);font-size:15px">${fN(d.rows)}</span></div><div class="ir"><span class="ik">Pump-labeled rows (source label)</span><span class="iv" style="color:var(--red);font-weight:700">${fN(d.pumps)}</span></div><div class="ir"><span class="ik">Normal-labeled rows (source label)</span><span class="iv" style="color:var(--green);font-weight:700">${fN(d.normal)}</span></div><div class="ir"><span class="ik">Unique benchmark windows</span><span class="iv">${fN(d.windows)}</span></div><div class="ir"><span class="ik">Unique replay symbols</span><span class="iv">${fN(d.symbols)}</span></div><div class="ir"><span class="ik">Exchanges represented</span><span class="iv">${fN(d.exchanges)}</span></div><div class="ir"><span class="ik">CSV completeness</span><span class="iv" style="max-width:72%;font-size:10px">${missingText}</span></div><div class="ir"><span class="ik">Separate pump-event records</span><span class="iv">${fN(d.pump_events)} records · ${fN(d.pump_event_symbols)} symbols</span></div><div class="ir"><span class="ik">Source</span><span class="iv">${esc(d.name||'—')}</span></div><div class="ir"><span class="ik">Paper</span><span class="iv">${esc(d.paper||'—')}</span></div>${parseNote}`;
+    const feats=['price_change_pct','price_std','volume','volume_change_pct','volume_std','n_trades','trade_freq','rush_order_ratio','buy_ratio','avg_trade_size','rolling_volatility','anomaly_score'];
+    document.getElementById('ds-feats').innerHTML=feats.map(f=>`<span class="chip" title="Serving-time feature from the existing model schema">${esc(f)}</span>`).join('');
+    document.getElementById('ds-source-cols').innerHTML=(d.columns||[]).map(c=>`<span class="chip">${esc(c)}</span>`).join('')||'—';
+  }catch(e){sum.innerHTML=`<div class="sw"><div class="sw-ico">↻</div><div class="sw-title">Dataset details unavailable</div><div class="sw-sub">${esc(e.message||'Check the Flask backend and retry.')}</div><button class="btn btn-out btn-sm" onclick="loadDs()">Retry</button></div>`;}
+}
+
+/* ── Auto-refresh ── */
+function refreshAll(){
+  const a=(document.querySelector('.page.active')||{}).id||'';
+  checkHealth();
+  if(a==='page-overview')refreshOv();
+  else if(a==='page-stream'){refreshStr();pollFeed();}
+  else if(a==='page-events')loadEvents();
+  else if(a==='page-alerts')loadAlerts();
+  else if(a==='page-graph')loadGStats();
+  else if(a==='page-evaluation')loadEval();
+  else if(a==='page-dataset')loadDs();
+}
+
+function startTimer(){_timer=setInterval(()=>{const a=(document.querySelector('.page.active')||{}).id||'';checkHealth();if(a==='page-overview')refreshOv();else if(a==='page-stream'){refreshStr();pollFeed();}else if(a==='page-events'&&_lastStreamStatus==='running')loadEvents();else if(a==='page-alerts'&&_lastStreamStatus==='running')loadAlerts();else if(a==='page-graph'){loadGStats();if(_lastStreamStatus==='running')loadGraph();}},3000);}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  initGraph();checkHealth();refreshOv();loadEval();loadDs();startTimer();
+  // resize graph canvas on graph page load
+  document.querySelector('[onclick="showPage(\'graph\',this)"]').addEventListener('click',()=>{setTimeout(()=>{if(gCvs){gCvs.width=gCvs.parentElement.offsetWidth||700;renderG();}},50);});
+});
+</script>
+</body>
+</html>
