@@ -1,5 +1,10 @@
 import json
+import os
+import ssl
+import time
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
 from backend.live.market_stream import LiveMarketManager, normalize_symbols
 
@@ -68,6 +73,63 @@ class MarketStreamTests(unittest.TestCase):
             normalize_symbols("BTC/USDT")
         with self.assertRaises(ValueError):
             normalize_symbols([f"COIN{i}USDT" for i in range(21)])
+
+    def test_confirmed_data_stream_is_default_and_original_endpoint_is_configurable(self):
+        with patch.dict(os.environ, {}, clear=True):
+            manager = LiveMarketManager()
+        self.assertEqual(manager._base_url, "wss://data-stream.binance.vision")
+        self.assertEqual(
+            manager._build_url(manager._base_url, ["BTCUSDT", "ETHUSDT"]),
+            "wss://data-stream.binance.vision/stream?streams=btcusdt@trade/ethusdt@trade",
+        )
+        with patch.dict(os.environ, {"BINANCE_WS_BASE": "wss://stream.binance.com:9443/"}):
+            legacy = LiveMarketManager()
+        self.assertEqual(legacy._base_url, "wss://stream.binance.com:9443")
+        self.assertEqual(
+            legacy._build_url(legacy._base_url, ["BTCUSDT"]),
+            "wss://stream.binance.com:9443/stream?streams=btcusdt@trade",
+        )
+
+    def test_ssl_options_require_certifi_ca_verification(self):
+        import certifi
+        options = LiveMarketManager._ssl_options()
+        self.assertEqual(options["ca_certs"], certifi.where())
+        self.assertTrue(Path(options["ca_certs"]).is_file())
+        self.assertEqual(options["cert_reqs"], ssl.CERT_REQUIRED)
+
+    def test_run_forever_receives_verified_tls_and_errors_update_connection_status(self):
+        calls = {}
+        transitions = []
+
+        class FakeWebSocket:
+            def run_forever(self, **kwargs):
+                calls["run_forever"] = kwargs
+                manager._on_open(self)
+                transitions.append(manager.status())
+                manager._on_error(self, OSError("handshake timed out"))
+                transitions.append(manager.status())
+
+            def close(self):
+                pass
+
+        def factory(url, **callbacks):
+            calls["url"] = url
+            calls["callbacks"] = callbacks
+            return FakeWebSocket()
+
+        manager = LiveMarketManager(ws_factory=factory)
+        manager.start(["BTCUSDT"])
+        deadline = time.monotonic() + 2
+        while len(transitions) < 2 and time.monotonic() < deadline:
+            time.sleep(0.01)
+        manager.stop()
+
+        self.assertEqual(calls["url"], "wss://data-stream.binance.vision/stream?streams=btcusdt@trade")
+        self.assertEqual(calls["run_forever"]["sslopt"]["cert_reqs"], ssl.CERT_REQUIRED)
+        self.assertTrue(Path(calls["run_forever"]["sslopt"]["ca_certs"]).is_file())
+        self.assertEqual([item["connection_status"] for item in transitions], ["connected", "reconnecting"])
+        self.assertIn("OSError", transitions[-1]["last_error"])
+        self.assertIn("handshake timed out", transitions[-1]["last_error"])
 
     def test_volume_spike_rule_requires_twenty_prior_observed_bars(self):
         t0 = 1_800_000_000_000

@@ -4,13 +4,14 @@ flask-cors==5.0.1
 
 # ── Public Binance Spot trade stream ────────────────────────────────────────────
 websocket-client==1.9.2
+certifi==2026.7.22
 
 # ── Data / ML ──────────────────────────────────────────────────────────────────
 pandas==3.0.6
 numpy==2.5.3
 scikit-learn==1.9.1
 scipy==1.18.1
-xgboost==3.4.1
+xgboost==2.1.4
 joblib==1.4.2
 narwhals==2.27.1
 
@@ -19,3 +20,7 @@ requests==2.32.3
 
 # ── Optional: Kafka bridge (only when a broker is separately available) ────────
 kafka-python==3.0.11
+
+# ── Persistent integration stores ─────────────────────────────────────────────
+neo4j==6.4.0
+influxdb-client==1.50.0

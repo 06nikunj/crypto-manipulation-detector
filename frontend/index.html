@@ -517,20 +517,26 @@ code{font-size:12px}
 </section>
 
 <section id="page-system" class="page">
-  <div class="sec-hd"><div><div class="sec-title">System Health</div><div class="sec-sub">Measured service states for this process. “Not configured” is distinct from healthy; historical-model capability does not imply live prediction support.</div></div><div class="sec-acts"><button class="btn btn-out btn-sm" onclick="refreshLiveStatus()">Refresh status</button></div></div>
+  <div class="sec-hd"><div><div class="sec-title">System Health</div><div class="sec-sub">Measured service states for this process. “Not configured” is distinct from healthy; historical-model capability does not imply live prediction support.</div></div><div class="sec-acts"><button class="btn btn-out btn-sm" onclick="refreshSystem()">Refresh status</button></div></div>
   <div class="live-health-grid">
     <div class="live-health-item"><div class="live-health-label">Flask API</div><div class="live-health-value" id="health-api-state">Checking…</div><div class="live-health-detail">This page receives status only if the API answered the request.</div></div>
     <div class="live-health-item"><div class="live-health-label">Binance Spot WebSocket</div><div class="live-health-value" id="health-stream-state">Disconnected</div><div class="live-health-detail" id="health-stream-detail">No active exchange socket.</div></div>
     <div class="live-health-item"><div class="live-health-label">Live ingestion</div><div class="live-health-value" id="health-ingestion-state">Idle</div><div class="live-health-detail">Public trade messages are counted only after validation.</div></div>
     <div class="live-health-item"><div class="live-health-label">Rule detector</div><div class="live-health-value" id="health-detector-state">Warming up</div><div class="live-health-detail">Only actual five-second bars and explicit thresholds.</div></div>
     <div class="live-health-item"><div class="live-health-label">XGBoost on live trades</div><div class="live-health-value" id="health-model-state">Unavailable for live schema</div><div class="live-health-detail" id="health-model-detail">The saved model is kept on its validated benchmark feature path.</div></div>
-    <div class="live-health-item"><div class="live-health-label">Kafka</div><div class="live-health-value" id="health-kafka-state">Not configured</div><div class="live-health-detail">The optional Kafka bridge is not part of the active dashboard runtime.</div></div>
-    <div class="live-health-item"><div class="live-health-label">Spark</div><div class="live-health-value" id="health-spark-state">Not configured</div><div class="live-health-detail">No Spark streaming job is running for this live feed.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Kafka broker</div><div class="live-health-value" id="health-kafka-state">Checking…</div><div class="live-health-detail" id="health-kafka-detail">Validated Binance trades and optional benchmark replay publish to market_trades.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Spark Structured Streaming</div><div class="live-health-value" id="health-spark-state">Checking…</div><div class="live-health-detail" id="health-spark-detail">Consumes market_trades; scores historical rows and aggregates live bars separately.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Neo4j graph store</div><div class="live-health-value" id="health-neo4j-state">Checking…</div><div class="live-health-detail" id="health-neo4j-detail">Persists observed assets, market events, alerts and data-supported relationships.</div></div>
+    <div class="live-health-item"><div class="live-health-label">InfluxDB metrics</div><div class="live-health-value" id="health-influx-state">Checking…</div><div class="live-health-detail" id="health-influx-detail">Stores Spark batch counts, predictions, invalid records, latency and service checks.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Grafana monitoring</div><div class="live-health-value" id="health-grafana-state">Checking…</div><div class="live-health-detail" id="health-grafana-detail">Provisioned dashboard queries actual InfluxDB measurements.</div></div>
     <div class="live-health-item"><div class="live-health-label">Historical benchmark</div><div class="live-health-value" id="health-benchmark-state">Separate · historical only</div><div class="live-health-detail">Open Dataset &amp; Benchmark for local source-file and evaluation details.</div></div>
     <div class="live-health-item"><div class="live-health-label">Valid live trade messages</div><div class="live-health-value" id="health-events-state">0</div><div class="live-health-detail">Counter resets when a new live session starts.</div></div>
     <div class="live-health-item"><div class="live-health-label">Last API status check</div><div class="live-health-value" id="health-updated-at">—</div><div class="live-health-detail">Times shown in UTC unless stated otherwise.</div></div>
     <div class="live-health-item"><div class="live-health-label">Last stream/API error</div><div class="live-health-value" id="health-last-error">None</div><div class="live-health-detail">A disconnected feed does not mean the local API is unhealthy.</div></div>
   </div>
+  <div class="card" style="margin-top:16px"><div class="ch"><div><div class="ct">Spark → API processing</div><div class="graph-hint">Counts reported by the Spark worker and Kafka output consumer; values are not synthesized.</div></div></div><div class="cb"><div class="g3"><div><div class="kpi-lbl">Spark processed events</div><div class="kpi-val" id="health-spark-processed">—</div></div><div><div class="kpi-lbl">Spark flagged predictions</div><div class="kpi-val" id="health-spark-flagged">—</div></div><div><div class="kpi-lbl">API consumed output records</div><div class="kpi-val" id="health-api-consumed">—</div></div></div><div id="health-pipeline-error" class="graph-hint" role="status" style="margin-top:12px">Waiting for pipeline status.</div></div></div>
+  <div class="card"><div class="ch"><div><div class="ct">Time-series metrics from InfluxDB</div><div class="graph-hint">Only actual queried records are shown. An unavailable database is not replaced with sample metrics.</div></div><label class="graph-hint">Range <select id="health-metrics-range" class="ctrl-sel" onchange="refreshMetrics()"><option value="1h">1 hour</option><option value="6h">6 hours</option><option value="24h">24 hours</option><option value="7d">7 days</option></select></label></div><div class="cb" id="health-metrics"><div class="sw"><div class="sw-title">Loading InfluxDB metrics…</div></div></div></div>
+  <div class="card"><div class="ch"><div><div class="ct">Kafka benchmark replay controls</div><div class="graph-hint">Feeds actual labeled CSV rows through market_trades → Spark → processed_events. This is historical data.</div></div><span id="health-kafka-replay-state" class="badge b-info">Checking…</span></div><div class="cb"><div class="cb-bar"><label>Rows <input id="health-replay-rows" class="ctrl-in" type="number" min="1" max="100000" value="1000" style="width:120px"></label><label>Speed × <input id="health-replay-speed" class="ctrl-in" type="number" min="0.1" max="100000" step="0.1" value="100" style="width:120px"></label><button class="btn btn-blue" onclick="startKafkaReplay()">Start replay</button><button class="btn btn-out" onclick="controlKafkaReplay('pause')">Pause</button><button class="btn btn-out" onclick="controlKafkaReplay('resume')">Resume</button><button class="btn btn-out" onclick="controlKafkaReplay('stop')">Stop</button></div><div id="health-kafka-replay-detail" class="graph-hint" role="status" style="margin-top:10px">Replay is not started.</div></div></div>
   <div class="cl cl-orange" style="margin-top:14px"><div><strong>Live ML boundary:</strong> the saved XGBoost model expects benchmark-specific engineered fields. It is not applied to raw Binance trades, and saved benchmark metrics are not presented as live validation.</div></div>
 </section>
 
@@ -563,7 +569,8 @@ const PAGE_META={
   alerts:{title:'Alert Investigation',sub:'Model-threshold predictions grouped by unique benchmark event/window ID'},
   graph:{title:'Graph Analysis',sub:'Market event relationship graph derived from the Sapienza benchmark'},
   evaluation:{title:'Model Evaluation',sub:'XGBoost classifier performance on the held-out chronological test set'},
-  dataset:{title:'Dataset &amp; Provenance',sub:'SystemsLab-Sapienza benchmark · One dataset · Four team contributions'}
+  dataset:{title:'Dataset &amp; Provenance',sub:'SystemsLab-Sapienza benchmark · One dataset · Four team contributions'},
+  system:{title:'System Health',sub:'Kafka · Spark · Neo4j · InfluxDB · measured status and pipeline outputs'}
 };
 function showPage(name,btn){
   document.querySelector('.sidebar').classList.remove('open');
@@ -574,7 +581,7 @@ function showPage(name,btn){
   const m=PAGE_META[name]||{};
   document.getElementById('tb-title').innerHTML=m.title||name;
   document.getElementById('tb-sub').textContent=m.sub||'';
-  const h={overview:refreshOv,stream:refreshStr,events:loadEvents,alerts:loadAlerts,graph:()=>{loadGStats();loadGraph();loadSusList();},evaluation:loadEval,dataset:loadDs};
+  const h={overview:refreshOv,stream:refreshStr,events:loadEvents,alerts:loadAlerts,graph:()=>{loadGStats();loadGraph();loadSusList();},evaluation:loadEval,dataset:loadDs,system:refreshSystem};
   if(h[name])h[name]();
 }
 
@@ -923,9 +930,9 @@ async function loadGStats(){
 }
 async function loadGraph(){
   const lim=Math.max(20,Math.min(300,parseInt(document.getElementById('g-lim').value)||200)),status=document.getElementById('g-status');
-  status.textContent='Loading current in-memory graph…';
+  status.textContent='Loading graph from configured store…';
   try{const r=await fetch(API+'/api/graph/nodes?limit='+lim);if(!r.ok)throw new Error('HTTP '+r.status);
-    const d=await r.json();gN=(d.nodes||[]).slice(0,lim);gE=d.edges||[];initGPos();renderG();loadSusList();status.textContent=gN.length?`Showing ${fN(gN.length)} nodes · ${fN(gE.length)} returned edges`:'Graph is empty until replayed events are written.';
+    const d=await r.json();gN=(d.nodes||[]).slice(0,lim);gE=d.edges||[];initGPos();renderG();loadSusList();const source=d.data_source==='neo4j'?'Neo4j':d.data_source==='local_in_memory_fallback'?'local in-memory fallback':'unknown source';status.textContent=gN.length?`Source: ${source} · showing ${fN(gN.length)} nodes · ${fN(gE.length)} returned edges`:`Source: ${source} · graph is empty until processed events are written.`;
   }catch(e){status.textContent='Graph request failed: '+e.message;gN=[];gE=[];renderG();}
 }
 async function loadSusOnly(){
@@ -1058,9 +1065,10 @@ function refreshAll(){
   else if(a==='page-graph')loadGStats();
   else if(a==='page-evaluation')loadEval();
   else if(a==='page-dataset')loadDs();
+  else if(a==='page-system')refreshSystem();
 }
 
-function startTimer(){_timer=setInterval(()=>{const a=(document.querySelector('.page.active')||{}).id||'';checkHealth();if(a==='page-overview')refreshOv();else if(a==='page-stream'){refreshStr();pollFeed();}else if(a==='page-events'&&_lastStreamStatus==='running')loadEvents();else if(a==='page-alerts'&&_lastStreamStatus==='running')loadAlerts();else if(a==='page-graph'){loadGStats();if(_lastStreamStatus==='running')loadGraph();}},3000);}
+function startTimer(){_timer=setInterval(()=>{const a=(document.querySelector('.page.active')||{}).id||'';checkHealth();if(a==='page-overview')refreshOv();else if(a==='page-stream'){refreshStr();pollFeed();}else if(a==='page-events'&&_lastStreamStatus==='running')loadEvents();else if(a==='page-alerts'&&_lastStreamStatus==='running')loadAlerts();else if(a==='page-graph'){loadGStats();if(_lastStreamStatus==='running')loadGraph();}else if(a==='page-system')refreshSystemAuto();},3000);}
 
 window.addEventListener('DOMContentLoaded',()=>{
   initGraph();checkHealth();refreshOv();loadEval();loadDs();startTimer();
@@ -1070,5 +1078,6 @@ window.addEventListener('DOMContentLoaded',()=>{
 </script>
 <script src="/obsidian.js"></script>
 <script src="/live_market.js"></script>
+<script src="/system_health.js"></script>
 </body>
 </html>

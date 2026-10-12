@@ -12,6 +12,7 @@ import math
 import os
 import random
 import re
+import ssl
 import statistics
 import threading
 import time
@@ -90,7 +91,9 @@ class LiveMarketManager:
 
     def __init__(self, ws_factory: Callable | None = None, base_url: str | None = None):
         self._ws_factory = ws_factory or self._default_ws_factory
-        self._base_url = (base_url or os.getenv("BINANCE_WS_BASE", "wss://stream.binance.com:9443")).rstrip("/")
+        self._base_url = (base_url or os.getenv(
+            "BINANCE_WS_BASE", "wss://data-stream.binance.vision"
+        )).rstrip("/")
         self._lock = threading.RLock()
         self._condition = threading.Condition(self._lock)
         self._stop_event = threading.Event()
@@ -127,6 +130,12 @@ class LiveMarketManager:
         return websocket.WebSocketApp(url, **callbacks)
 
     @staticmethod
+    def _ssl_options() -> dict:
+        """Use Certifi's maintained CA bundle and require peer verification."""
+        import certifi
+        return {"ca_certs": certifi.where(), "cert_reqs": ssl.CERT_REQUIRED}
+
+    @staticmethod
     def _build_url(base_url: str, symbols: list[str]) -> str:
         streams = "/".join(f"{symbol.lower()}@trade" for symbol in symbols)
         return f"{base_url}/stream?streams={streams}"
@@ -136,7 +145,14 @@ class LiveMarketManager:
         if not callable(callback):
             raise TypeError("callback must be callable")
         with self._lock:
-            self._trade_listeners.append(callback)
+            if callback not in self._trade_listeners:
+                self._trade_listeners.append(callback)
+
+    def remove_trade_listener(self, callback: Callable[[dict], None]) -> None:
+        """Remove an optional sink without affecting the live WebSocket."""
+        with self._lock:
+            self._trade_listeners = [listener for listener in self._trade_listeners
+                                     if listener != callback]
 
     def start(self, symbols=None) -> dict:
         try:
@@ -228,7 +244,7 @@ class LiveMarketManager:
                 )
                 with self._lock:
                     self._ws = ws
-                ws.run_forever(ping_interval=0)
+                ws.run_forever(ping_interval=0, sslopt=self._ssl_options())
                 if not self._stop_event.is_set():
                     self._set_state("reconnecting", self._last_error or "Connection closed; retrying")
             except Exception as exc:
@@ -261,7 +277,10 @@ class LiveMarketManager:
         self.handle_message(message)
 
     def _on_error(self, _ws, error) -> None:
-        text = str(error)[:240] if error is not None else "Unknown WebSocket error"
+        detail = str(error).strip() if error is not None else ""
+        error_type = type(error).__name__ if error is not None else "WebSocketError"
+        text = f"{error_type}: {detail}" if detail else f"{error_type}: no error details provided"
+        text = text[:300]
         if not self._stop_event.is_set():
             self._set_state("reconnecting", text)
             LOG.warning("Binance Spot WebSocket error: %s", text)
