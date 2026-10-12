@@ -12,10 +12,12 @@ Integrates outputs from all four members into a single cohesive application:
   - Member 4 (Aanya):  evaluation metrics and this API itself
 """
 
+import csv
 import json
 import sys
 import time
 import math
+import atexit
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -24,6 +26,8 @@ sys.path.insert(0, str(ROOT))
 
 from flask import Flask, jsonify, request, send_from_directory, Response
 from flask_cors import CORS
+from flask import stream_with_context
+from backend.live.market_stream import LiveMarketManager, normalize_symbols, configured_symbols
 
 # ── lazy imports — only loaded after startup ───────────────────────────────────
 _ingestion_loaded   = False
@@ -83,6 +87,98 @@ def _ensure_pipeline():
 
 app = Flask(__name__, static_folder=str(ROOT / "frontend"))
 CORS(app)
+live_market = LiveMarketManager()
+atexit.register(live_market.stop)
+
+
+# ── Binance Spot live-market API (separate from benchmark replay) ──────────────
+
+@app.route("/api/live/status")
+def live_status():
+    state = live_market.status()
+    state.update({
+        "api": {"status": "healthy", "checked_at": datetime.now(timezone.utc).isoformat()},
+        "ingestion": {"status": "active" if state["connection_status"] == "connected" else "idle",
+                      "transport": "Binance public combined trade WebSocket", "credentials_required": False},
+        "optional_services": {
+            "kafka": {"status": "not_configured", "detail": "The dashboard uses its bounded in-memory live path; the optional Kafka bridge is separate."},
+            "spark": {"status": "not_configured", "detail": "No Spark streaming job is configured or running in this project."},
+        },
+        "historical_benchmark": {"status": "separate", "note": "Historical replay and saved evaluation remain on Dataset & Benchmark / Model Evaluation."},
+    })
+    return jsonify(state)
+
+
+@app.route("/api/live/start", methods=["POST"])
+def live_start():
+    payload = request.get_json(silent=True) or {}
+    try:
+        symbols = normalize_symbols(payload.get("symbols", configured_symbols()))
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    result = live_market.start(symbols)
+    return jsonify(result), (200 if result.get("ok") else 400)
+
+
+@app.route("/api/live/stop", methods=["POST"])
+def live_stop():
+    return jsonify(live_market.stop())
+
+
+@app.route("/api/live/snapshot")
+def live_snapshot():
+    return jsonify(live_market.snapshot())
+
+
+@app.route("/api/live/events")
+def live_events():
+    snap = live_market.snapshot()
+    symbol = request.args.get("symbol", "").strip().upper()
+    limit = _query_int("limit", 200, 1, 1_000)
+    trades = snap["trades"]
+    bars = [bar for rows in snap["bars"].values() for bar in rows]
+    if symbol:
+        trades = [item for item in trades if item["symbol"] == symbol]
+        bars = [item for item in bars if item["symbol"] == symbol]
+    bars.sort(key=lambda item: item["bucket_start_ms"], reverse=True)
+    return jsonify({"scope": "current_live_session_only", "trades": trades[:limit], "bars": bars[:limit], "processed_events": snap["processed_events"]})
+
+
+@app.route("/api/live/alerts")
+def live_alerts():
+    snap = live_market.snapshot()
+    symbol = request.args.get("symbol", "").strip().upper()
+    alerts = snap["alerts"]
+    if symbol:
+        alerts = [item for item in alerts if item["symbol"] == symbol]
+    return jsonify({"scope": "current_live_session_only", "alerts": alerts, "count": len(alerts)})
+
+
+@app.route("/api/live/graph")
+def live_graph():
+    return jsonify(live_market.graph(_query_int("limit", 300, 1, 1_200)))
+
+
+@app.route("/api/live/stream")
+def live_event_stream():
+    @stream_with_context
+    def generate():
+        initial = live_market.snapshot()
+        initial.pop("graph", None)
+        cursor = initial.get("stream_sequence", 0)
+        yield f"id: {cursor}\nevent: snapshot\ndata: {json.dumps(initial, separators=(',', ':'))}\n\n"
+        while True:
+            events = live_market.wait_events(cursor, timeout=15)
+            if not events:
+                yield ": keep-alive\n\n"
+                continue
+            for event in events:
+                cursor = max(cursor, int(event["id"]))
+                yield f"id: {event['id']}\nevent: {event['type']}\ndata: {json.dumps(event, separators=(',', ':'))}\n\n"
+
+    return Response(generate(), mimetype="text/event-stream", headers={
+        "Cache-Control": "no-cache, no-transform", "X-Accel-Buffering": "no", "Connection": "keep-alive",
+    })
 
 
 # ── serve dashboard ────────────────────────────────────────────────────────────
@@ -440,6 +536,28 @@ def evaluation():
 
 
 # ── dataset info ───────────────────────────────────────────────────────────────
+
+@app.route("/api/dataset/sample")
+def dataset_sample():
+    """Return a small, bounded sample of the actual bundled labeled CSV."""
+    sample_path = ROOT / "data" / "pump_dump_dataset" / "labeled_trades.csv"
+    limit = _query_int("limit", 6, 1, 12)
+    if not sample_path.exists():
+        return jsonify({"available": False, "error": "Bundled labeled dataset is not present."}), 404
+    try:
+        with sample_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            columns = reader.fieldnames or []
+            rows = []
+            for index, row in enumerate(reader):
+                if index >= limit:
+                    break
+                rows.append(row)
+        return jsonify({"available": True, "columns": columns, "rows": rows,
+                        "returned": len(rows), "scope": "first_source_records",
+                        "source_file": "data/pump_dump_dataset/labeled_trades.csv"})
+    except (OSError, csv.Error) as exc:
+        return jsonify({"available": False, "error": f"Could not read dataset sample: {exc}"}), 500
 
 @app.route("/api/dataset")
 def dataset_info():

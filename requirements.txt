@@ -2,6 +2,9 @@
 flask==3.1.1
 flask-cors==5.0.1
 
+# ── Public Binance Spot trade stream ────────────────────────────────────────────
+websocket-client==1.9.2
+
 # ── Data / ML ──────────────────────────────────────────────────────────────────
 pandas==3.0.6
 numpy==2.5.3
@@ -14,5 +17,5 @@ narwhals==2.27.1
 # ── HTTP requests (data/download.py) ──────────────────────────────────────────
 requests==2.32.3
 
-# ── Optional: Kafka (gracefully skipped if broker unavailable) ─────────────────
+# ── Optional: Kafka bridge (only when a broker is separately available) ────────
 kafka-python==3.0.11

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>CryptoSentinel — Market Integrity Intelligence</title>
+<link rel="icon" href="data:,">
 <style>
 :root{--white:#fff;--bg:#f0f4f9;--bg2:#e8edf5;--surface:#fff;--surface2:#f8fafd;--navy:#0f1c3f;--navy2:#1a2e5a;--text:#1a2742;--text2:#4a5878;--text3:#7c8ba1;--border:#d6dde8;--border2:#e8edf4;--blue:#2563eb;--blue2:#1d4ed8;--blue3:#3b82f6;--bl:#eff6ff;--blm:#dbeafe;--teal:#0891b2;--teal2:#ecfeff;--green:#059669;--green2:#ecfdf5;--green3:#d1fae5;--red:#dc2626;--red2:#fef2f2;--red3:#fee2e2;--orange:#d97706;--orange2:#fffbeb;--orange3:#fde68a;--purple:#7c3aed;--purple2:#f5f3ff;--sw:220px}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -177,144 +178,139 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;ba
 .metrics-five{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}.class-metrics{width:100%;border-collapse:collapse}.class-metrics th,.class-metrics td{padding:9px 10px;border-bottom:1px solid var(--border2);text-align:right;font-size:11px;font-variant-numeric:tabular-nums}.class-metrics th:first-child,.class-metrics td:first-child{text-align:left}.class-metrics th{color:var(--text3);font-size:9px;text-transform:uppercase;letter-spacing:.35px;background:#f8fbff}.dataset-range{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;background:#f5f9ff;border:1px solid #e5eef9;border-radius:9px;margin:0 0 12px;color:var(--text2);font-size:11px}.dataset-range strong{color:var(--navy)}
 @media(max-width:1100px){.pipeline-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics-five{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:768px){.topbar{height:58px}.content{padding-top:58px}.page{padding:16px 12px}.pipeline-steps{grid-template-columns:1fr}.metrics-five{grid-template-columns:repeat(2,minmax(0,1fr))}.event-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.events-pager{align-items:flex-start;flex-direction:column}.graph-canvas{height:340px}.overview-strip{font-size:10px}.chart-note{margin-left:0}}
+/* Readability pass: keep the analytical UI spacious at desktop scale and reflow instead of shrinking on smaller screens. */
+:root{--sw:240px}
+body{font-size:15px;line-height:1.5}
+code{font-size:12px}
+.sb-logo{padding:21px 20px 18px}.sb-logo-icon{width:42px;height:42px}
+.sb-name{font-size:17px}.sb-tag{font-size:10px}
+.sb-sec{font-size:11px;padding:17px 20px 6px;letter-spacing:.9px}
+.sb-item{font-size:14px;padding:12px 19px;gap:11px}.sb-item svg{width:17px;height:17px}
+.sb-foot{font-size:12px;padding:16px 19px}
+.topbar{height:68px;padding:0 32px}.content{padding-top:68px}
+.pg-title{font-size:18px}.pg-sub{font-size:13px}
+.page{padding:30px 32px}
+.sec-hd{margin-bottom:23px;gap:16px}.sec-title{font-size:29px;line-height:1.16;letter-spacing:-.7px}.sec-sub{font-size:15px;line-height:1.62;max-width:780px}
+.overview-strip{gap:11px;padding:12px 15px;margin:0 0 18px;font-size:13px;line-height:1.5}
+.pipeline-guide{margin-bottom:20px}.pipeline-guide summary{padding:15px 18px;font-size:15px}.pipeline-kicker{font-size:12px}.pipeline-steps{gap:12px;padding:0 16px 16px}.pipeline-step{min-height:116px;padding:15px 15px 13px 48px}.pipeline-num{left:14px;top:15px;width:25px;height:25px;font-size:12px}.pipeline-step h4{font-size:14px;margin-bottom:6px}.pipeline-step p{font-size:13px;line-height:1.52}.pipeline-module{font-size:11px;margin-top:8px}
+.kpi-grid{gap:16px;margin-bottom:22px}.kpi{padding:20px 21px;min-height:148px;border-radius:14px}.kpi-ico{width:36px;height:36px;margin-bottom:12px}.kpi-ico svg{width:18px;height:18px}.kpi-lbl{font-size:12px;letter-spacing:.45px;margin-bottom:7px}.kpi-val{font-size:34px;line-height:1.05;margin-bottom:5px}.kpi-sub{font-size:12px;line-height:1.45}
+.card{margin-bottom:18px;border-radius:14px}.ch{padding:16px 20px}.ct{font-size:16px;gap:9px}.ct svg{width:18px;height:18px}.cb{padding:22px}
+.g2,.g3,.g13{gap:18px}
+.btn{font-size:14px;padding:9px 15px;min-height:38px}.btn-start-hdr{font-size:14px;padding:9px 16px}.btn-sm{font-size:12px;padding:7px 11px;min-height:34px}.btn-xs{font-size:11px;padding:5px 9px;min-height:30px}
+.badge,.rp{font-size:11px;padding:4px 9px}.rbt{height:7px;width:68px}.prog-t{height:9px}
+.tbl th{font-size:12px;padding:12px 15px;letter-spacing:.35px}.tbl td{font-size:14px;padding:13px 15px}.mono{font-size:13px}
+.ctrl-in,.ctrl-sel{font-size:14px;padding:9px 12px;min-height:40px}.cb-bar{gap:11px}
+.cl{font-size:14px;line-height:1.6;padding:15px 18px;gap:11px}.cl svg{width:18px;height:18px}
+.sw{padding:54px 28px}.sw-ico{width:48px;height:48px;margin-bottom:12px;font-size:24px}.sw-title{font-size:18px;margin-bottom:7px}.sw-sub{font-size:14px;line-height:1.6;max-width:440px;margin-bottom:18px}
+.ac{margin-bottom:14px}.ach{padding:17px 20px}.ac-sym{font-size:18px}.ac-meta{font-size:12px;line-height:1.55}.ac-det{padding:18px 20px}.fn,.fin{font-size:12px}.fv,.fi,.fiv{font-size:12px}
+.graph-canvas{height:460px}.gleg{gap:17px;padding:15px 20px}.gli{font-size:13px}.gld{width:11px;height:11px}.graph-tools{gap:8px}.graph-hint{font-size:12px}#gtip{font-size:13px;max-width:320px;padding:13px 15px}
+.mxl{font-size:50px}.cmg{gap:12px;max-width:360px}.cmc{padding:16px;border-radius:10px}.cml{font-size:11px;letter-spacing:.3px}.cmv{font-size:30px}
+.feed-ln{font-size:12px;padding:8px 18px;gap:12px}.feed-ln .fts{min-width:88px}.feed-ln .fsym{min-width:44px}.chip{font-size:12px;padding:4px 10px}
+.chart-legend{font-size:12px;gap:14px}.chart-swatch{width:10px;height:10px}.chart-note{font-size:12px}.events-pager{font-size:13px;padding:13px 16px}.event-detail-grid{gap:10px 18px}.event-detail-item{font-size:12px}.event-detail-item strong{font-size:11px}.metrics-five{gap:15px;margin-bottom:19px}.class-metrics th,.class-metrics td{font-size:13px;padding:11px 12px}.class-metrics th{font-size:11px}.dataset-range{font-size:13px;padding:12px 15px}
+.page [style*="font-size:9px"],.page [style*="font-size: 9px"]{font-size:11px!important}
+.page [style*="font-size:10px"],.page [style*="font-size: 10px"]{font-size:12px!important}
+.page [style*="font-size:11px"],.page [style*="font-size: 11px"]{font-size:13px!important}
+@media(max-width:1320px){.page{padding:27px 26px}.kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:960px){.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.g2,.g3,.g13{grid-template-columns:1fr}.pipeline-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics-five{grid-template-columns:repeat(2,minmax(0,1fr))}.sec-title{font-size:26px}}
+@media(max-width:768px){.sidebar{transform:translateX(-105%);transition:transform .2s;box-shadow:10px 0 30px #10234222}.sidebar.open{transform:translateX(0)}.topbar{left:0;height:62px;padding:0 16px}.content{padding-top:62px}.page{padding:22px 18px}.pg-title{font-size:16px}.pg-sub{display:none}.mobile-menu{display:flex;width:42px;height:42px}.tb-r{gap:8px}.ts-lbl{display:none}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px}.kpi{padding:17px;min-height:132px}.kpi-val{font-size:30px}.sec-hd{flex-direction:column;align-items:flex-start}.sec-title{font-size:25px}.sec-sub{font-size:14px}.g2,.g3,.g13{grid-template-columns:1fr}.pipeline-steps{grid-template-columns:1fr}.graph-canvas{height:360px}.topbar .replay-pill{display:none!important}.overview-strip{font-size:12px}.chart-note{margin-left:0}.page [style*="font-size:11px"],.page [style*="font-size: 11px"]{font-size:12px!important}}
+@media(max-width:520px){.page{padding:18px 14px}.sec-title{font-size:23px}.sec-sub{font-size:14px}.kpi-grid{grid-template-columns:1fr!important}.kpi{min-height:unset;padding:17px 19px}.kpi-val{font-size:32px}.metrics-five{grid-template-columns:1fr}.event-detail-grid{grid-template-columns:1fr}.events-pager{align-items:flex-start;flex-direction:column}.topbar{padding:0 10px}.tb-l{gap:8px}.tb-r{gap:6px}.conn-pill{padding:7px}.conn-pill span{display:none}.btn-start-hdr{padding:8px 10px;font-size:12px;gap:4px}.btn-start-hdr svg{width:12px;height:12px}.graph-canvas{height:320px}.graph-tools{flex-wrap:wrap;justify-content:flex-end}.gleg{gap:10px;padding:12px}.feed-ln{flex-wrap:wrap}.feed-ln .fts{min-width:75px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.content{min-width:0;flex:1 1 0%}.page{width:100%;min-width:0}
 </style>
+<link rel="stylesheet" href="/obsidian.css">
 </head>
 <body>
 <div class="shell">
 <aside class="sidebar">
   <div class="sb-logo">
     <div class="sb-logo-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="8 12 11 15 16 9" stroke-width="2.2"/></svg></div>
-    <div><div class="sb-name">CryptoSentinel</div><div class="sb-tag">Market Intelligence</div></div>
+    <div><div class="sb-name">CryptoSentinel</div><div class="sb-tag">MARKET INTEGRITY INTELLIGENCE</div></div>
   </div>
   <nav class="sb-nav">
-    <div class="sb-sec">Workspace</div>
-    <button class="sb-item active" onclick="showPage('overview',this)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview
-    </button>
-    <button class="sb-item" onclick="showPage('stream',this)">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 010 8.49m-8.48-.01a6 6 0 010-8.49m11.31-2.82a10 10 0 010 14.14m-14.14 0a10 10 0 010-14.14"/></svg>Stream Replay
-    </button>
-    <button class="sb-item" onclick="showPage('events',this)">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Events
-    </button>
-    <div class="sb-sec" style="margin-top:6px">Detection</div>
-    <button class="sb-item" onclick="showPage('alerts',this)">
-      <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      Alerts <span class="sb-badge" id="sb-al">0</span>
-    </button>
-    <button class="sb-item" onclick="showPage('graph',this)">
-      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Graph Analysis
-    </button>
-    <div class="sb-sec" style="margin-top:6px">Insights</div>
-    <button class="sb-item" onclick="showPage('evaluation',this)">
-      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Evaluation
-    </button>
-    <button class="sb-item" onclick="showPage('dataset',this)">
-      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Dataset
-    </button>
+    <div class="sb-sec">Monitor</div>
+    <button class="sb-item active" data-page="overview" onclick="showPage('overview',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="5" rx="1"/><rect x="13" y="10" width="8" height="11" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg>Overview</button>
+    <button class="sb-item" data-page="live" onclick="showPage('live',this)"><svg viewBox="0 0 24 24"><polyline points="2 12 6 12 9 4 14 20 17 12 22 12"/></svg>Live Markets<span id="sb-live-nav-state" class="sb-live-badge">OFF</span></button>
+    <button class="sb-item" data-page="events" onclick="showPage('events',this)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>Events</button>
+    <button class="sb-item" data-page="alerts" onclick="showPage('alerts',this)"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Alerts<span class="sb-badge" id="sb-live-alerts">0</span></button>
+    <button class="sb-item" data-page="graph" onclick="showPage('graph',this)"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Graph Analysis</button>
+    <div class="sb-sec">Research</div>
+    <button class="sb-item" data-page="evaluation" onclick="showPage('evaluation',this)"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Model Evaluation</button>
+    <button class="sb-item" data-page="dataset" onclick="showPage('dataset',this)"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Dataset &amp; Benchmark</button>
+    <div class="sb-sec">Operations</div>
+    <button class="sb-item" data-page="system" onclick="showPage('system',this)"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6z"/><path d="M8.5 12l2.2 2.2 4.8-5"/></svg>System Health</button>
   </nav>
-  <div class="sb-foot">Research prototype &middot; <a href="https://github.com/SystemsLab-Sapienza/pump-and-dump-dataset" target="_blank">Sapienza benchmark</a></div>
+  <div class="sb-foot">LIVE MARKET MONITOR<br><a href="https://developers.binance.com/en/docs/products/spot/web-sockets/market-data-streams" target="_blank" rel="noopener">BINANCE PUBLIC STREAM DOCS ↗</a></div>
 </aside>
 
 <div class="content">
 <header class="topbar">
   <div class="tb-l">
     <button class="mobile-menu" aria-label="Toggle navigation" onclick="toggleNav()">☰</button>
-    <div><div class="pg-title" id="tb-title">Overview</div><div class="pg-sub" id="tb-sub">Historical benchmark replay · research prototype</div></div>
+    <div><div class="pg-title" id="tb-title">Live market overview</div><div class="pg-sub" id="tb-sub">Binance Spot / public trade stream</div></div>
   </div>
   <div class="tb-r">
-    <div class="replay-pill" id="replay-pill"><div class="rdot"></div><span>Historical Replay Active</span></div>
-    <div class="conn-pill"><div class="cdot" id="cdot"></div><span id="clabel">Connecting</span></div>
-    <div class="ts-lbl" id="tb-ts"></div>
-    <button class="btn-start-hdr" id="btn-hdr-start" onclick="streamStart()">
-      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>Start Replay
-    </button>
-    <button class="btn btn-out btn-sm" id="btn-hdr-stop" onclick="streamStop()" disabled>
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>Stop
-    </button>
+    <div class="conn-pill" aria-live="polite"><div class="cdot" id="cdot"></div><span id="clabel">Disconnected</span></div>
+    <span class="ts-caption">Last received</span><div class="ts-lbl" id="tb-ts">—</div>
+    <button class="btn-start-hdr" id="btn-hdr-connect" onclick="connectLive()">Connect</button>
+    <button class="btn btn-out btn-sm" id="btn-hdr-disconnect" onclick="disconnectLive()" hidden>Stop live</button>
+    <div class="replay-pill" id="replay-pill" hidden><div class="rdot"></div><span>Historical replay active</span></div>
+    <button id="btn-hdr-start" onclick="streamStart()" hidden>Start benchmark replay</button>
+    <button id="btn-hdr-stop" onclick="streamStop()" hidden>Stop benchmark replay</button>
   </div>
 </header>
 
-<!-- OVERVIEW -->
+<!-- LIVE OVERVIEW: all displayed live values come from the Binance public trade stream. -->
 <section id="page-overview" class="page active">
-  <div class="sec-hd">
-    <div>
-      <div class="sec-title">Market Surveillance Overview</div>
-      <div class="sec-sub">Historical benchmark rows are replayed in timestamp order, transformed into rolling features, and scored by XGBoost. This view reports benchmark replay results; it is not a live-market detector.</div>
-    </div>
-    <div class="sec-acts"><button class="btn btn-out btn-sm" onclick="refreshAll()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh</button></div>
-  </div>
-  <div class="overview-strip"><span class="strip-dot"></span><strong>Historical benchmark replay</strong><span class="strip-sep">/</span><span>SystemsLab–Sapienza · 5-second trade chunks</span><span class="strip-sep">/</span><span id="overview-daterange">Reading date coverage…</span><span class="strip-sep">/</span><span>Not connected to a live exchange</span></div>
-  <details class="pipeline-guide">
-    <summary><span>How the data moves through CryptoSentinel<span class="pipeline-kicker">A faculty-friendly tour of the implemented path — open to inspect each stage and its source module.</span></span><span class="badge b-info">7 stages</span></summary>
-    <div class="pipeline-steps">
-      <article class="pipeline-step"><span class="pipeline-num">01</span><h4>Historical input</h4><p>Bundled labeled trade chunks are the replay source. The app does not subscribe to an exchange.</p><div class="pipeline-module">data/pump_dump_dataset/labeled_trades.csv</div></article>
-      <article class="pipeline-step"><span class="pipeline-num">02</span><h4>Chronological replay</h4><p>Timestamp-ordered rows enter a local queue at the selected playback multiplier.</p><div class="pipeline-module">backend/spark/src/ingestion.py</div></article>
-      <article class="pipeline-step"><span class="pipeline-num">03</span><h4>Feature engineering</h4><p>Rolling market history produces the model’s 12 serving-time features for each 5-second chunk.</p><div class="pipeline-module">backend/spark/src/preprocessing.py</div></article>
-      <article class="pipeline-step"><span class="pipeline-num">04</span><h4>Model inference</h4><p>The saved scaler and XGBoost model produce a raw score; scores at or above 0.50 are flagged.</p><div class="pipeline-module">backend/spark/src/anomaly_detection.py · models/</div></article>
-      <article class="pipeline-step"><span class="pipeline-num">05</span><h4>Episode grouping</h4><p>Flagged chunks sharing a benchmark event ID are grouped for review. A flag is a prediction, not proof.</p><div class="pipeline-module">ALERT_EPISODES · process memory</div></article>
-      <article class="pipeline-step"><span class="pipeline-num">06</span><h4>Relationship graph</h4><p>MarketEvent, CryptoAsset and available PumpGroup records are linked in an in-memory graph; no wallet data exists.</p><div class="pipeline-module">backend/spark/src/graph_builder.py</div></article>
-      <article class="pipeline-step"><span class="pipeline-num">07</span><h4>Dashboard delivery</h4><p>Flask endpoints deliver the current replay, graph and stored benchmark metrics to these seven views.</p><div class="pipeline-module">backend/api/app.py · frontend/index.html</div></article>
-    </div>
-  </details>
-  <div class="kpi-grid">
-    <div class="kpi" title="Cumulative since this Flask process started; processed includes chunks whose handling raised an error."><div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div class="kpi-lbl">Events Processed</div><div class="kpi-val" id="kpi-proc">—</div><div class="kpi-sub" id="kpi-eps">since process start · — events/s</div></div>
-    <div class="kpi kred" title="Unique benchmark window IDs with one or more model-flagged chunks, grouped across this process lifetime."><div class="kpi-ico"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div class="kpi-lbl">Flagged Episodes</div><div class="kpi-val" id="kpi-ep">—</div><div class="kpi-sub" id="kpi-chunks">unique benchmark window IDs · process lifetime</div></div>
-    <div class="kpi kgreen"><div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="kpi-lbl">Normal Events</div><div class="kpi-val" id="kpi-norm">—</div><div class="kpi-sub" id="kpi-npct">of total processed</div></div>
-    <div class="kpi kteal"><div class="kpi-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="1" y1="9" x2="4" y2="9"/></svg></div><div class="kpi-lbl">Throughput</div><div class="kpi-val" id="kpi-thru">—</div><div class="kpi-sub" id="kpi-st">Stream stopped</div></div>
-    <div class="kpi"><div class="kpi-ico"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="kpi-lbl">Model F1 Score</div><div class="kpi-val" id="kpi-f1">—</div><div class="kpi-sub">Chronological test split</div></div>
-    <div class="kpi kpurple"><div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div><div class="kpi-lbl">PR-AUC</div><div class="kpi-val" id="kpi-prauc">—</div><div class="kpi-sub">Precision-Recall area</div></div>
-  </div>
-
-  <div class="g2" style="margin-bottom:14px">
-    <div class="card">
-      <div class="ch"><div class="ct"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Detection Timeline</div><div style="font-size:10px;color:var(--text3)">Model-flagged benchmark windows</div></div>
-      <div class="cb" style="padding:14px 18px 10px">
-        <canvas id="chart-tl" height="170" style="width:100%"></canvas>
-        <div id="chart-tl-empty" style="display:none" class="sw" style="padding:28px"><div class="sw-ico">📊</div><div class="sw-title">No flagged windows yet</div><div class="sw-sub">This timeline shows model-flagged benchmark windows only.</div></div>
+  <div class="overview-hero">
+    <div class="overview-copy-block">
+      <div class="overview-kicker">BINANCE SPOT · LIVE MARKET SURVEILLANCE</div>
+      <h1 class="overview-headline"><span>Watch the market</span><span>as it moves.</span></h1>
+      <p class="overview-copy">Follow actual public trade messages for selected Spot pairs, build observed five-second market bars, and flag transparent price/volume rules. This view is separate from the labeled historical benchmark.</p>
+      <div class="hero-actions">
+        <a href="#live" onclick="navigateLive('live');return false"><span class="hero-action-icon mint">↗</span><span><strong>Open Live Markets</strong><small>Connect pairs and inspect the price tape</small></span><b>→</b></a>
+        <a href="#alerts" onclick="navigateLive('alerts');return false"><span class="hero-action-icon">⌕</span><span><strong>Review rule alerts</strong><small>Explainable market warnings, not verdicts</small></span><b>→</b></a>
+        <a href="#benchmark" onclick="navigateLive('dataset');return false"><span class="hero-action-icon blue">◷</span><span><strong>Explore the benchmark</strong><small>Historical replay and evaluation, separate</small></span><b>→</b></a>
       </div>
+      <svg class="hero-waves" viewBox="0 0 900 230" preserveAspectRatio="none" aria-hidden="true"><path d="M0 176 C145 80 238 210 370 124 S594 55 706 120 830 174 900 58"/><path d="M0 194 C145 98 238 228 370 142 S594 73 706 138 830 192 900 76"/><path d="M0 212 C145 116 238 246 370 160 S594 91 706 156 830 210 900 94"/><path d="M0 158 C145 62 238 192 370 106 S594 37 706 102 830 156 900 40"/></svg>
     </div>
-    <div class="card">
-      <div class="ch"><div class="ct"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Risk Distribution</div><div style="font-size:10px;color:var(--text3)">Recent classified chunk scores</div></div>
-      <div class="cb" style="padding:14px 18px 10px">
-        <canvas id="chart-risk" height="170" style="width:100%"></canvas>
-        <div id="chart-risk-empty" style="display:none" class="sw" style="padding:28px"><div class="sw-ico">📈</div><div class="sw-title">No risk data yet</div><div class="sw-sub">Start replay to populate detection scores</div></div>
-        <div class="chart-legend"><span class="chart-key"><i class="chart-swatch" style="background:#13866c"></i>Below 0.50 threshold</span><span class="chart-key"><i class="chart-swatch" style="background:#d9575f"></i>Flagged at ≥0.50</span><span class="chart-note">Raw XGBoost scores · recent in-memory rows · not calibrated probabilities</span></div>
-      </div>
-    </div>
+    <div class="hero-side"><strong>Public market data</strong><span>No API key · no order placement</span></div>
   </div>
-
-  <div class="g2">
-    <div class="card">
-      <div class="ch"><div class="ct"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Recent Flagged Windows</div><button class="btn btn-ghost btn-sm" onclick="showPage('alerts',document.querySelectorAll('.sb-item')[3])">All →</button></div>
-      <div class="cb np"><div id="ov-ep-list" class="scr" style="max-height:290px"><div class="sw"><div class="sw-ico">🔍</div><div class="sw-title">No episodes detected</div><div class="sw-sub">Start the replay to begin detection</div><button class="btn btn-blue btn-sm" onclick="streamStart()">Start Replay</button></div></div></div>
-    </div>
-    <div class="card">
-      <div class="ch"><div class="ct"><svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Symbol Activity</div><div style="font-size:10px;color:var(--text3)">Latest 500 processed chunks</div></div>
-      <div class="cb np"><div id="ov-syms" class="scr" style="max-height:290px"><div class="sw"><div class="sw-ico">💹</div><div class="sw-title">No symbol data</div><div class="sw-sub">Symbol activity populates during replay</div></div></div></div>
-    </div>
+  <div class="overview-strip"><span class="strip-dot"></span><strong id="overview-live-connection-state" class="state-pill is-off">Disconnected</strong><span class="strip-sep">·</span><span>Binance Spot public trade stream</span><span class="strip-sep">·</span><span id="overview-live-watchlist">BTCUSDT · ETHUSDT · BNBUSDT</span><span class="strip-sep">·</span><span id="overview-live-updated">No live messages received</span></div>
+  <div class="kpi-grid overview-stats">
+    <div class="kpi"><div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="2 12 6 12 9 4 14 20 17 12 22 12"/></svg></div><div class="kpi-lbl">BTC / USDT · latest</div><div class="kpi-val" id="live-kpi-btc">—</div><div class="kpi-sub" id="live-kpi-btc-sub">Waiting for an observed trade</div></div>
+    <div class="kpi kteal"><div class="kpi-ico"><svg viewBox="0 0 24 24"><polyline points="3 17 8 12 12 15 21 6"/><polyline points="15 6 21 6 21 12"/></svg></div><div class="kpi-lbl">ETH / USDT · latest</div><div class="kpi-val" id="live-kpi-eth">—</div><div class="kpi-sub" id="live-kpi-eth-sub">Waiting for an observed trade</div></div>
+    <div class="kpi kpurple"><div class="kpi-ico"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div><div class="kpi-lbl">Trade messages</div><div class="kpi-val" id="live-kpi-trades">0</div><div class="kpi-sub" id="live-kpi-trades-sub">No synthetic ticks · current session</div></div>
+    <div class="kpi korange"><div class="kpi-ico"><svg viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg></div><div class="kpi-lbl">Rule warnings</div><div class="kpi-val" id="live-kpi-alerts">0</div><div class="kpi-sub" id="live-kpi-alerts-sub">No rule threshold crossed this session</div></div>
   </div>
-
-  <div class="card">
-    <div class="ch"><div class="ct">System Health</div></div>
-    <div class="cb" style="padding:12px 18px">
-      <div style="display:flex;gap:28px;flex-wrap:wrap">
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Dataset</div><div id="h-ds" style="font-size:13px;font-weight:700;color:var(--green)">Ready</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Model</div><div id="h-mdl" style="font-size:13px;font-weight:700;color:var(--text3)">Pending</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Replay state</div><div id="h-pipe" style="font-size:13px;font-weight:700;color:var(--text3)">Idle</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Graph</div><div id="h-graph" style="font-size:13px;font-weight:700;color:var(--text3)">Empty</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Kafka/Spark/Neo4j</div><div style="font-size:13px;font-weight:700;color:var(--orange)">Optional — not required</div></div>
-        <div><div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);font-weight:700;margin-bottom:3px">Errors</div><div id="h-err" style="font-size:13px;font-weight:700;color:var(--green)">0</div></div>
-      </div>
+  <div class="live-overview-grid">
+    <div class="card">
+      <div class="ch live-toolbar"><div><div class="ct">Live observed price · five-second bars</div><div class="graph-hint">Empty intervals are not interpolated; chart uses only closed, non-empty bars</div></div><label class="graph-hint">Pair <select id="overview-market-symbol" class="ctrl-sel"><option value="BTCUSDT">BTCUSDT</option><option value="ETHUSDT">ETHUSDT</option><option value="BNBUSDT">BNBUSDT</option></select></label></div>
+      <div class="cb"><div class="live-chart-wrap"><canvas id="overview-live-chart" class="live-chart" aria-label="Observed Binance Spot price bars"></canvas><div id="overview-chart-empty" class="live-chart-empty sw"><div class="sw-ico">⌁</div><div class="sw-title">No observed price bars yet</div><div class="sw-sub">Connect to Binance Spot to populate this chart from actual trades.</div></div></div><div class="live-section-note">Price, high/low and base volume come from received trade messages. This is market activity—not order-book depth, wallet activity, or a confirmed manipulation classification.</div></div>
+    </div>
+    <div class="live-side-stack">
+      <div class="card"><div class="ch"><div><div class="ct">Latest actual trades</div><div class="graph-hint" id="overview-live-count">0 actual trade messages · this process session</div></div><button class="btn btn-ghost btn-sm" onclick="navigateLive('events')">All events →</button></div><div class="cb np"><div id="overview-live-events"><div class="sw"><div class="sw-title">Waiting for real trades</div><div class="sw-sub">Connect to start receiving public events.</div></div></div></div></div>
+      <div class="card"><div class="ch"><div><div class="ct">Live detector boundary</div><div class="graph-hint">Research model and live rules are different paths</div></div></div><div class="cb"><div class="ir"><span class="ik">Rule monitor</span><span class="iv" id="live-rule-status">Warming up</span></div><div class="ir"><span class="ik">Saved XGBoost on raw trades</span><span class="iv" id="live-model-status">Unavailable</span></div><div id="live-model-note" class="live-section-note">The benchmark model is not applied to raw exchange trades.</div></div></div>
     </div>
   </div>
 </section>
 
+<!-- LIVE MARKETS -->
+<section id="page-live" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Live Markets</div><div class="sec-sub">Connect to Binance Spot’s unauthenticated public trade stream. Choose pairs, see actual ticks and locally recorded receipt times, and view recent observed bars.</div></div><div class="sec-acts"><span class="badge b-info">Read-only · no order entry</span></div></div>
+  <div class="live-connection-card"><div class="live-connection-main"><div class="live-connection-mark">⌁</div><div><div class="live-connection-title">Public WebSocket connection</div><div class="live-connection-note" id="live-connection-note">Use Connect to open the public market-data stream. No API key or trading permission is used.</div></div></div><span id="live-connection-state" class="state-pill is-off">Disconnected</span></div>
+  <div class="card"><div class="ch"><div><div class="ct">Connection &amp; watchlist</div><div class="graph-hint">Up to 20 valid uppercase Spot symbols · changing pairs starts a new local session</div></div></div><div class="cb"><div class="live-control-grid"><label for="live-symbols">Trading pairs<input id="live-symbols" class="ctrl-in" value="BTCUSDT, ETHUSDT, BNBUSDT" placeholder="BTCUSDT, ETHUSDT"></label><div><label for="live-symbols-top">Quick pair editor<input id="live-symbols-top" class="ctrl-in" value="BTCUSDT, ETHUSDT, BNBUSDT" aria-label="Selected Binance Spot trading pairs"></label></div><div class="cb-bar"><button class="btn btn-green" onclick="connectLive()">Connect live feed</button><button class="btn btn-out" onclick="disconnectLive()">Disconnect</button></div><div class="live-control-help">Symbols are validated server-side. The connection uses only public market data and does not request credentials, place orders or access user accounts. Stopping ends the live session; reconnecting creates a fresh in-memory session.</div></div><div class="live-facts"><div class="live-fact"><span>Exchange event time · UTC</span><strong id="live-last-exchange-event">No exchange event yet</strong></div><div class="live-fact"><span>Exchange trade time · UTC</span><strong id="live-last-exchange-trade">No exchange trade yet</strong></div><div class="live-fact"><span>Received locally · UTC</span><strong id="live-last-received">No trade received this session</strong></div></div><div class="live-section-note" style="margin-top:10px" id="live-stream-transport">Updates are sent to this page over Server-Sent Events; Binance WebSocket state is shown independently above.</div></div></div>
+  <div class="kpi-grid"><div class="kpi"><div class="kpi-lbl">BTC / USDT · latest</div><div class="kpi-val" id="live-kpi-btc-full">—</div><div class="kpi-sub" id="live-kpi-btc-sub-full">Waiting for an observed trade</div></div><div class="kpi kteal"><div class="kpi-lbl">ETH / USDT · latest</div><div class="kpi-val" id="live-kpi-eth-full">—</div><div class="kpi-sub" id="live-kpi-eth-sub-full">Waiting for an observed trade</div></div><div class="kpi kpurple"><div class="kpi-lbl">Valid trade messages</div><div class="kpi-val" id="live-kpi-trades-full">0</div><div class="kpi-sub" id="live-kpi-trades-sub-full">Current live session only</div></div><div class="kpi korange"><div class="kpi-lbl">Retained rule warnings</div><div class="kpi-val" id="live-kpi-alerts-full">0</div><div class="kpi-sub" id="live-kpi-alerts-sub-full">Current live session only</div></div></div>
+  <div class="live-overview-grid"><div class="card"><div class="ch live-toolbar"><div><div class="ct">Observed market price</div><div class="graph-hint">Closed five-second bars · no fabricated gaps</div></div><label class="graph-hint">Pair <select id="market-symbol" class="ctrl-sel"><option value="BTCUSDT">BTCUSDT</option><option value="ETHUSDT">ETHUSDT</option><option value="BNBUSDT">BNBUSDT</option></select></label></div><div class="cb"><div class="live-chart-wrap"><canvas id="live-chart" class="live-chart" aria-label="Live observed Binance Spot price chart"></canvas><div id="live-chart-empty" class="live-chart-empty sw"><div class="sw-ico">◷</div><div class="sw-title">No observed price bars yet</div><div class="sw-sub">Connect and wait for real trades in at least two five-second buckets.</div></div></div><div class="live-section-note">Each bar is aggregated from the actual trade stream. A bar is closed when a real trade from a later bucket arrives; no empty interval or order-book level is synthesized.</div></div></div><div class="card"><div class="ch"><div><div class="ct">Rule-engine scope</div><div class="graph-hint">No live XGBoost probability is shown</div></div></div><div class="cb"><div class="ir"><span class="ik">Rule engine</span><span class="iv" id="live-rule-status-full">Warming up</span></div><div class="ir"><span class="ik">Benchmark model on raw trades</span><span class="iv" id="live-model-status-full">Unavailable</span></div><div id="live-model-note-full" class="live-section-note">The saved XGBoost model expects benchmark-specific engineered features that are not validated for raw Binance trades.</div><div style="margin-top:12px"><button class="btn btn-out btn-sm" onclick="navigateLive('alerts')">View live rule alerts</button></div></div></div></div>
+</section>
+
+<!-- OPTIONAL HISTORICAL REPLAY -->
 <!-- STREAM -->
 <section id="page-stream" class="page">
+  <div class="cl cl-orange"><div><strong>Optional historical benchmark area.</strong> This page replays the bundled labeled Sapienza dataset; it is not a live Binance feed. Live Markets, Events and Alerts use separate live-session endpoints.</div></div>
+  <div class="live-benchmark-links" style="margin-bottom:14px"><button class="btn btn-out btn-sm" onclick="navigateLive('benchmark-events')">Benchmark events</button><button class="btn btn-out btn-sm" onclick="navigateLive('benchmark-alerts')">Benchmark alerts</button><button class="btn btn-out btn-sm" onclick="navigateLive('benchmark-graph')">Benchmark graph</button></div>
   <div class="sec-hd"><div><div class="sec-title">Historical replay control room</div><div class="sec-sub">Control playback of the bundled benchmark, inspect actual queue/pipeline state, and follow model outputs as the historical rows are processed.</div></div><div class="sec-acts"><span class="badge b-info">Historical data · not live</span></div></div>
   <div class="cl cl-blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><div><strong>Historical Dataset Replay</strong> — Replays the SystemsLab-Sapienza benchmark at configurable speed through the XGBoost pipeline. This is <em>not</em> a live exchange connection. Each event is a historical 5-second OHLCV chunk scored as it is replayed.</div></div>
-  <div class="card" style="margin-bottom:14px">
+  <div class="card replay-console" style="margin-bottom:14px">
     <div class="ch"><div class="ct">Replay Controls</div></div>
     <div class="cb">
       <div class="cb-bar" style="margin-bottom:14px">
@@ -334,7 +330,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;ba
       <div style="margin-top:7px;font-size:11px;color:var(--text3)" id="str-ts">Last event: —</div>
     </div>
   </div>
-  <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr)">
+  <div class="kpi-grid stream-stats" style="grid-template-columns:repeat(6,1fr)">
     <div class="kpi" title="Cumulative since server process start; includes chunks whose handling later records an error."><div class="kpi-lbl">Pipeline Chunks Handled</div><div class="kpi-val" id="str-proc">—</div><div class="kpi-sub">Cumulative · this process lifetime</div></div>
     <div class="kpi kteal"><div class="kpi-lbl">Events / sec</div><div class="kpi-val" id="str-eps">—</div><div class="kpi-sub">Throughput</div></div>
     <div class="kpi korange"><div class="kpi-lbl">Queue Depth</div><div class="kpi-val" id="str-q">—</div><div class="kpi-sub">Buffered</div></div>
@@ -342,21 +338,26 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;ba
     <div class="kpi kgreen"><div class="kpi-lbl">Graph Event Writes</div><div class="kpi-val" id="str-gw">—</div><div class="kpi-sub">Added to in-memory graph</div></div>
     <div class="kpi"><div class="kpi-lbl">Errors</div><div class="kpi-val" id="str-err">0</div><div class="kpi-sub">Pipeline exceptions</div></div>
   </div>
-  <div class="card">
+  <div class="card stream-feed">
       <div class="ch"><div class="ct">Historical Replay Feed</div><button class="btn btn-ghost btn-sm" id="feed-btn" onclick="toggleFeed()">Pause Feed</button></div>
     <div class="cb np"><div id="ev-feed" class="scr" style="max-height:260px"><div class="sw" style="padding:28px"><div class="sw-ico">◷</div><div class="sw-title">Replay is idle</div><div class="sw-sub">Start the historical benchmark replay to inspect processed events. No live exchange data is connected.</div></div></div></div>
   </div>
 </section>
 
-<!-- EVENTS -->
+<!-- LIVE EVENTS -->
 <section id="page-events" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Live trade events</div><div class="sec-sub">Raw trades received from the selected Binance Spot public streams. Exchange trade time and local receipt time are shown separately; these are not benchmark rows or model predictions.</div></div><div class="sec-acts"><span class="badge b-info">Current live session only</span></div></div>
+  <div class="card"><div class="ch live-toolbar"><div><div class="ct">Observed trades <span id="live-event-count" class="graph-hint">0 retained actual trades</span></div><div class="graph-hint" id="live-event-empty-note">This view is live-session only. Historical benchmark rows are in the optional Benchmark area.</div></div><div class="live-filters"><label>Pair <select id="live-event-symbol-filter" class="ctrl-sel"><option value="">All selected pairs</option><option value="BTCUSDT">BTCUSDT</option><option value="ETHUSDT">ETHUSDT</option><option value="BNBUSDT">BNBUSDT</option></select></label><input id="live-event-q" class="ctrl-in" type="search" placeholder="Search pair or trade ID"></div></div><div class="live-table-wrap"><table class="tbl"><thead><tr><th>Trade time · UTC</th><th>Pair</th><th>Price</th><th>Base qty</th><th>Quote qty</th><th>Binance trade ID</th><th>Received · UTC</th></tr></thead><tbody id="live-events-tbody"><tr><td colspan="7"><div class="sw"><div class="sw-title">No trade messages in this session</div><div class="sw-sub">Connect the exchange feed to populate this table with observed trades.</div></div></td></tr></tbody></table></div><div class="cb"><div class="live-section-note">Data fields are passed from the public Binance trade message. This client does not infer buyers, sellers, wallets or intent beyond the exchange field describing whether the buyer is the maker.</div></div></div>
+</section>
+<!-- BENCHMARK EVENTS -->
+<section id="page-benchmark-events" class="page">
   <div class="sec-hd"><div><div class="sec-title">Recent event explorer</div><div class="sec-sub">Search and inspect model outputs from the latest bounded in-memory window. Dates, symbols, score and prediction filters apply to those retained rows only.</div></div><div class="sec-acts"><span class="badge b-info">Up to 2,000 recent rows</span></div></div>
-  <div class="card">
+  <div class="card events-table">
     <div class="ch">
       <div class="ct"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>Events Explorer <span id="ev-cnt" style="font-weight:400;color:var(--text3);font-size:11px;margin-left:6px"></span></div>
       <button class="btn btn-out btn-sm" onclick="loadEvents()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh</button>
     </div>
-    <div class="cb" style="padding-bottom:10px;border-bottom:1px solid var(--border2)">
+    <div class="cb events-filters" style="padding-bottom:10px;border-bottom:1px solid var(--border2)">
       <div class="cb-bar">
         <label style="font-size:12px;font-weight:600;color:var(--text2)">Search: <input type="search" class="ctrl-in" id="ev-q" placeholder="Symbol or event ID" style="width:160px;margin-left:5px" oninput="evD()"></label>
         <label style="font-size:12px;font-weight:600;color:var(--text2)">Symbol: <input type="text" class="ctrl-in" id="ev-sym" placeholder="e.g. DLT" style="width:76px;margin-left:5px;text-transform:uppercase" oninput="evD()"></label>
@@ -378,15 +379,24 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;ba
   </div>
 </section>
 
-<!-- ALERTS -->
+<!-- LIVE ALERTS -->
 <section id="page-alerts" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Live rule warnings</div><div class="sec-sub">Warnings are created from observed, closed five-second bars using explicit movement and volume thresholds. They are not XGBoost predictions or findings of market manipulation.</div></div><div class="sec-acts"><span class="badge b-info">Rule-based · current session</span></div></div>
+  <div class="live-rule-callout"><span aria-hidden="true">ⓘ</span><div><strong>Rules in this build:</strong> an absolute five-second close-to-close price move of at least 1.0%, or base volume at least 3× the median of the preceding 20 observed non-empty five-second bars. The volume rule stays in warm-up until its baseline exists. Scores are not probabilities; empty buckets are not invented.</div></div>
+  <div class="g2" style="margin:14px 0"><div class="kpi korange"><div class="kpi-lbl">Retained rule warnings</div><div class="kpi-val" id="live-alert-count">0 rule warnings this session</div><div class="kpi-sub">Most recent alerts retained in memory</div></div><div class="kpi kred"><div class="kpi-lbl">High severity · rule-derived</div><div class="kpi-val" id="live-alert-high">0</div><div class="kpi-sub">Threshold magnitude only · not calibrated risk</div></div></div>
+  <div class="live-toolbar" style="margin-bottom:12px"><div class="live-section-note">An alert records source bar times, local detection time, observed price/volume and the exact rule signal.</div><label class="graph-hint">Pair <select id="live-alert-symbol-filter" class="ctrl-sel"><option value="">All selected pairs</option><option value="BTCUSDT">BTCUSDT</option><option value="ETHUSDT">ETHUSDT</option><option value="BNBUSDT">BNBUSDT</option></select></label></div>
+  <div id="live-alert-list"><div class="sw"><div class="sw-title">No rule thresholds crossed</div><div class="sw-sub">Connect to the public trade feed. Live alerts are generated only from observed market bars.</div></div></div>
+  <div class="live-section-note">This monitoring logic is an explicit demonstration heuristic, not a validated pump-and-dump detector. Historical model alerts remain available via Dataset &amp; Benchmark → Optional replay.</div>
+</section>
+<!-- BENCHMARK ALERTS -->
+<section id="page-benchmark-alerts" class="page">
   <div class="sec-hd"><div><div class="sec-title">Model-flagged episodes</div><div class="sec-sub">One investigation card per unique benchmark event/window, with the number of five-second chunks that crossed the model threshold.</div></div><div class="sec-acts"><span class="badge b-info">Threshold ≥ 0.50</span></div></div>
   <div class="cl cl-orange"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div><strong>Predicted episodes, not confirmed incidents.</strong> Cards group model-threshold alerts by the benchmark's unique event/window ID. A window can be a false positive; its dataset ground-truth label is shown only in the expanded details. Each flagged chunk is one five-second interval. Scores are raw XGBoost probabilities, not externally calibrated.</div></div>
-  <div class="g2" style="margin-bottom:14px">
+  <div class="g2 alert-summary" style="margin-bottom:14px">
     <div class="kpi kred"><div class="kpi-lbl">Unique Flagged Episodes</div><div class="kpi-val" id="al-ep">—</div><div class="kpi-sub">Distinct benchmark windows flagged</div></div>
     <div class="kpi korange"><div class="kpi-lbl">Total Flagged Chunks</div><div class="kpi-val" id="al-ch">—</div><div class="kpi-sub">5-second intervals flagged</div></div>
   </div>
-  <div class="cb-bar" style="margin-bottom:13px">
+  <div class="cb-bar alert-filters" style="margin-bottom:13px">
     <button class="btn btn-out btn-sm" onclick="loadAlerts()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Refresh</button>
     <label style="font-size:12px;font-weight:600;color:var(--text2)">Filter: <select class="ctrl-sel" id="al-filt" onchange="resetAlerts()" style="margin-left:5px"><option value="all">All Episodes</option><option value="unack">Unacknowledged Only</option><option value="ack">Acknowledged Only</option></select></label>
     <label style="font-size:12px;font-weight:600;color:var(--text2)">Peak score: <select class="ctrl-sel" id="al-risk" onchange="resetAlerts()" style="margin-left:5px"><option value="0">Any</option><option value="0.5">&ge;50%</option><option value="0.75">&ge;75%</option><option value="0.9">&ge;90%</option></select></label>
@@ -400,8 +410,15 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;ba
   <div class="events-pager"><span id="al-page-note">Episode totals update from model predictions during replay.</span><div style="display:flex;gap:7px"><button class="btn btn-out btn-sm" id="al-prev" onclick="stepAlertPage(-1)" disabled>Previous</button><button class="btn btn-out btn-sm" id="al-next" onclick="stepAlertPage(1)" disabled>Next</button></div></div>
 </section>
 
-<!-- GRAPH -->
+<!-- LIVE GRAPH -->
 <section id="page-graph" class="page">
+  <div class="sec-hd"><div><div class="sec-title">Live market relationships</div><div class="sec-sub">A bounded graph of observed market bars and selected assets in the current WebSocket session. This is not an account, wallet, order-book or transaction graph.</div></div><div class="sec-acts"><span class="badge b-info">Current session only</span></div></div>
+  <div class="cl cl-blue"><div><strong>Graph semantics:</strong> green nodes are subscribed exchange pairs; small nodes are closed, non-empty five-second market bars; red nodes crossed a displayed rule. <strong>NEXT</strong> links connect consecutive observed bars for one pair and <strong>OBSERVED_ON</strong> links associate a bar with its pair. No wallets, groups or ownership relationships are fabricated.</div></div>
+  <div class="live-graph-stats"><div class="kpi"><div class="kpi-lbl">Graph nodes</div><div class="kpi-val" id="live-graph-nodes">0</div></div><div class="kpi kteal"><div class="kpi-lbl">Graph edges</div><div class="kpi-val" id="live-graph-edges">0</div></div><div class="kpi kpurple"><div class="kpi-lbl">Observed bars</div><div class="kpi-val" id="live-graph-bars">0</div></div><div class="kpi"><div class="kpi-lbl">Selected pairs</div><div class="kpi-val" id="live-graph-assets">0</div></div><div class="kpi kred"><div class="kpi-lbl">Rule-flagged bars</div><div class="kpi-val" id="live-graph-flags">0</div></div></div>
+  <div class="card"><div class="ch live-toolbar"><div><div class="ct">Observed asset-to-bar graph</div><div class="graph-hint" id="live-graph-status">Waiting for live data</div></div><div class="live-graph-tools"><button class="btn btn-out btn-sm" onclick="refreshLiveGraph()">Refresh graph</button><button class="btn btn-out btn-sm" onclick="document.getElementById('live-graph-filter').value='';document.getElementById('live-graph-filter').dispatchEvent(new Event('change'))">Reset pair</button><label class="graph-hint">Pair <select id="live-graph-filter" class="ctrl-sel"><option value="">All pairs</option><option value="BTCUSDT">BTCUSDT</option><option value="ETHUSDT">ETHUSDT</option><option value="BNBUSDT">BNBUSDT</option></select></label></div></div><canvas id="live-graph" role="img" aria-label="Live market pair and observed bar graph"></canvas><div class="cb"><div id="live-graph-detail" class="live-section-note">No live relationships yet. Historical graph analysis remains under the Benchmark area.</div></div><div class="gleg"><div class="gli"><i class="gld" style="background:#16855e"></i>Selected pair</div><div class="gli"><i class="gld" style="background:#63a98a"></i>Observed 5-second bar</div><div class="gli"><i class="gld" style="background:#c94f4a"></i>Bar crossed a rule</div><div style="margin-left:auto;font-size:10px;color:var(--text3)">No wallet or transaction links</div></div></div>
+</section>
+<!-- BENCHMARK GRAPH -->
+<section id="page-benchmark-graph" class="page">
   <div class="sec-hd"><div><div class="sec-title">Market-event relationships</div><div class="sec-sub">Explore the bounded in-memory event graph and its asset, time-chain, and benchmark-group relationships. This is not a wallet transaction graph.</div></div><div class="sec-acts"><span class="badge b-info">Graph data is process-local</span></div></div>
   <div class="cl cl-blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><div><strong>Graph schema:</strong> The Sapienza dataset contains <em>no wallet addresses</em>. This graph models market events, not transactions. Nodes: <strong>CryptoAsset</strong> (traded coin), <strong>MarketEvent</strong> (5-sec chunk), <strong>PumpGroup</strong> (Telegram group code). Edges: BELONGS_TO &middot; NEXT (time chain) &middot; ORGANIZED_BY.</div></div>
   <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr);margin-bottom:14px">
@@ -412,16 +429,16 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;ba
     <div class="kpi kred"><div class="kpi-lbl">Suspicious</div><div class="kpi-val" id="g-su">—</div></div>
     <div class="kpi kpurple"><div class="kpi-lbl">Pump Groups</div><div class="kpi-val" id="g-pg">—</div></div>
   </div>
-  <div class="g13">
-    <div>
-      <div class="card" style="margin-bottom:13px"><div class="ch"><div class="ct">Selected Node</div></div><div class="cb" id="g-det" style="min-height:110px"><div class="sw" style="padding:18px"><div class="sw-ico" style="font-size:24px">👆</div><div class="sw-sub" style="margin-bottom:0">Click a node to inspect</div></div></div></div>
+  <div class="g13 graph-layout">
+    <div class="graph-evidence">
+      <div class="card" style="margin-bottom:13px"><div class="ch"><div class="ct">Selected Node</div></div><div class="cb" id="g-det" style="min-height:110px"><div class="sw" style="padding:18px"><div class="sw-ico" style="font-size:20px">+</div><div class="sw-sub" style="margin-bottom:0">Select a node to inspect its actual evidence</div></div></div></div>
       <div class="card"><div class="ch"><div class="ct">Suspicious Events</div></div><div class="cb np"><div id="g-sus-list" class="scr" style="max-height:250px"><div class="sw" style="padding:22px"><div class="sw-sub" style="margin-bottom:0">Start replay to populate</div></div></div></div></div>
     </div>
-    <div class="card" style="overflow:hidden">
+    <div class="card graph-stage" style="overflow:hidden">
       <div class="ch">
         <div><div class="ct"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>Graph Visualization</div><div id="g-status" class="graph-hint" role="status">Not loaded yet</div></div>
         <div class="graph-tools">
-          <label style="font-size:11px;color:var(--text2)">Limit: <input type="number" id="g-lim" value="120" min="20" max="300" class="ctrl-in" style="width:58px;margin-left:4px"></label>
+          <label style="font-size:11px;color:var(--text2)">Limit: <input type="number" id="g-lim" value="200" min="20" max="300" class="ctrl-in" style="width:58px;margin-left:4px"></label>
           <button class="btn btn-out btn-sm" onclick="loadGraph()">Refresh</button>
           <button class="btn btn-out btn-sm" onclick="loadSusOnly()">Sus only</button>
           <button class="btn btn-out btn-sm" onclick="zoomGraph(.85)" aria-label="Zoom out">−</button><span class="graph-hint" id="g-zoom">100%</span><button class="btn btn-out btn-sm" onclick="zoomGraph(1.18)" aria-label="Zoom in">+</button><button class="btn btn-out btn-sm" onclick="resetGraphView()">Reset view</button>
@@ -471,8 +488,11 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;ba
 
 <!-- DATASET -->
 <section id="page-dataset" class="page">
+  <div class="cl cl-orange"><div><strong>Historical benchmark area.</strong> The labeled Sapienza dataset and saved model evaluation are research assets, separate from the Binance live-session feed. Benchmark replay is optional and is never labeled as live data.</div></div>
+  <div class="card"><div class="ch"><div><div class="ct">Optional historical tools</div><div class="graph-hint">Replay the labeled benchmark or inspect historical model output separately</div></div></div><div class="cb live-benchmark-links"><button class="btn btn-out" onclick="navigateLive('stream')">Open historical replay</button><button class="btn btn-out" onclick="navigateLive('benchmark-events')">Benchmark events</button><button class="btn btn-out" onclick="navigateLive('benchmark-alerts')">Benchmark alerts</button><button class="btn btn-out" onclick="navigateLive('benchmark-graph')">Benchmark graph</button><button class="btn btn-out" onclick="navigateLive('evaluation')">Saved model evaluation</button></div></div>
+  <div id="historical-dataset-content">
   <div class="sec-hd"><div><div class="sec-title">Dataset &amp; provenance</div><div class="sec-sub">Inspect the bundled benchmark's actual coverage, labels, source schema, missingness, and attribution before interpreting any model result.</div></div><div class="sec-acts"><span class="badge b-info">Single benchmark source</span></div></div>
-  <div class="g2">
+  <div class="g2 dataset-layout">
     <div class="card"><div class="ch"><div class="ct">Dataset Summary</div></div><div class="cb" id="ds-sum"><div class="sw" style="padding:28px"><div class="sw-ico">🗄</div><div class="sw-sub" style="margin-bottom:0">Loading...</div></div></div></div>
     <div class="card"><div class="ch"><div class="ct">Provenance &amp; Compliance</div></div><div class="cb">
       <div class="ir"><span class="ik">Name</span><span class="iv">SystemsLab-Sapienza Pump-and-Dump Benchmark</span></div>
@@ -486,12 +506,32 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;ba
     </div></div>
   </div>
   <div class="card"><div class="ch"><div class="ct">Feature Schema</div><div style="font-size:10px;color:var(--text3)">12 model inputs derived by the existing preprocessing module</div></div><div class="cb"><div id="ds-feats" style="display:flex;gap:7px;flex-wrap:wrap"></div><div class="ir" style="margin-top:12px"><span class="ik">Bundled source fields</span><span class="iv" id="ds-source-cols" style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end">Loading schema…</span></div></div></div>
+  <div class="sample-records"><div class="ch"><div><div class="ct">Source records / first observations</div><div class="graph-hint">Actual rows read from labeled_trades.csv · labels are benchmark annotations</div></div><button class="btn btn-out btn-sm" onclick="loadDsSample()">Reload sample</button></div><div id="ds-sample" class="sample-wrap"><div class="sw"><div class="sw-title">Loading source records…</div></div></div></div>
   <div class="card"><div class="ch"><div class="ct">Team Responsibilities</div></div><div class="cb">
     <div class="ir"><span class="ik" style="color:var(--blue)">Nikunj Bhatt (018)</span><span class="iv">Data collection &amp; preprocessing &rarr; dataset download, schema cleaning, labeled_trades.csv generation (data/download.py)</span></div>
     <div class="ir"><span class="ik" style="color:var(--teal)">Sruthi (001)</span><span class="iv">Stream processing &amp; feature engineering &rarr; StreamController, compute_features, extract_single_event_features (ingestion.py, preprocessing.py)</span></div>
     <div class="ir"><span class="ik" style="color:var(--purple)">Arnav (044)</span><span class="iv">Graph analysis &amp; detection &rarr; XGBoost classifier, GAT architecture config, DetectionPipeline, GraphWriter, graph schema (classification.py, anomaly_detection.py, graph_builder.py)</span></div>
     <div class="ir"><span class="ik" style="color:var(--red)">Aanya (005)</span><span class="iv">Visualization &amp; system evaluation &rarr; Flask REST API, this dashboard, episode grouping, evaluation scripts (api/app.py, frontend/index.html)</span></div>
   </div></div>
+</div>
+</section>
+
+<section id="page-system" class="page">
+  <div class="sec-hd"><div><div class="sec-title">System Health</div><div class="sec-sub">Measured service states for this process. “Not configured” is distinct from healthy; historical-model capability does not imply live prediction support.</div></div><div class="sec-acts"><button class="btn btn-out btn-sm" onclick="refreshLiveStatus()">Refresh status</button></div></div>
+  <div class="live-health-grid">
+    <div class="live-health-item"><div class="live-health-label">Flask API</div><div class="live-health-value" id="health-api-state">Checking…</div><div class="live-health-detail">This page receives status only if the API answered the request.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Binance Spot WebSocket</div><div class="live-health-value" id="health-stream-state">Disconnected</div><div class="live-health-detail" id="health-stream-detail">No active exchange socket.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Live ingestion</div><div class="live-health-value" id="health-ingestion-state">Idle</div><div class="live-health-detail">Public trade messages are counted only after validation.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Rule detector</div><div class="live-health-value" id="health-detector-state">Warming up</div><div class="live-health-detail">Only actual five-second bars and explicit thresholds.</div></div>
+    <div class="live-health-item"><div class="live-health-label">XGBoost on live trades</div><div class="live-health-value" id="health-model-state">Unavailable for live schema</div><div class="live-health-detail" id="health-model-detail">The saved model is kept on its validated benchmark feature path.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Kafka</div><div class="live-health-value" id="health-kafka-state">Not configured</div><div class="live-health-detail">The optional Kafka bridge is not part of the active dashboard runtime.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Spark</div><div class="live-health-value" id="health-spark-state">Not configured</div><div class="live-health-detail">No Spark streaming job is running for this live feed.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Historical benchmark</div><div class="live-health-value" id="health-benchmark-state">Separate · historical only</div><div class="live-health-detail">Open Dataset &amp; Benchmark for local source-file and evaluation details.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Valid live trade messages</div><div class="live-health-value" id="health-events-state">0</div><div class="live-health-detail">Counter resets when a new live session starts.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Last API status check</div><div class="live-health-value" id="health-updated-at">—</div><div class="live-health-detail">Times shown in UTC unless stated otherwise.</div></div>
+    <div class="live-health-item"><div class="live-health-label">Last stream/API error</div><div class="live-health-value" id="health-last-error">None</div><div class="live-health-detail">A disconnected feed does not mean the local API is unhealthy.</div></div>
+  </div>
+  <div class="cl cl-orange" style="margin-top:14px"><div><strong>Live ML boundary:</strong> the saved XGBoost model expects benchmark-specific engineered fields. It is not applied to raw Binance trades, and saved benchmark metrics are not presented as live validation.</div></div>
 </section>
 
 </div></div>
@@ -517,7 +557,7 @@ function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/<
 function toast(msg,t='info'){const c={info:'#2563eb',success:'#059669',error:'#dc2626',warn:'#d97706'};const el=document.createElement('div');el.style.cssText=`position:fixed;bottom:18px;right:18px;background:${c[t]};color:#fff;padding:9px 16px;border-radius:8px;z-index:9999;font-size:12px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.2);transition:opacity .3s;max-width:300px`;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>{el.style.opacity='0';setTimeout(()=>el.remove(),300);},2800);}
 /* ── Navigation ── */
 const PAGE_META={
-  overview:{title:'Overview',sub:'Historical benchmark replay · research prototype'},
+  overview:{title:'Overview',sub:'Market integrity / historical benchmark evidence'},
   stream:{title:'Stream Replay',sub:'Historical dataset replay through the XGBoost detection pipeline'},
   events:{title:'Events Explorer',sub:'Browse, filter, and inspect individual 5-second market events'},
   alerts:{title:'Alert Investigation',sub:'Model-threshold predictions grouped by unique benchmark event/window ID'},
@@ -543,14 +583,14 @@ async function checkHealth(){
   try{const r=await fetch(API+'/api/health',{signal:AbortSignal.timeout(3000)});
     if(!r.ok)throw 0;const d=await r.json();
     document.getElementById('cdot').className='cdot on';
-    document.getElementById('clabel').textContent='Backend online';
+    document.getElementById('clabel').textContent=d.dataset?.ready?'Benchmark loaded':'Local API ready';
     document.getElementById('tb-ts').textContent=new Date(d.timestamp).toLocaleTimeString();
     const ds=d.dataset||{};const range=document.getElementById('overview-daterange');
     if(range&&ds.start_date&&ds.end_date){const df=x=>new Date(x).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});range.textContent=`Benchmark coverage ${df(ds.start_date)}–${df(ds.end_date)} UTC`;}
     const m=d.model||{};
     if(m.f1!=null){document.getElementById('kpi-f1').textContent=fP(m.f1);document.getElementById('kpi-prauc').textContent=fP(m.pr_auc);}
     return d;
-  }catch{document.getElementById('cdot').className='cdot';document.getElementById('clabel').textContent='Backend offline';return null;}
+  }catch{document.getElementById('cdot').className='cdot';document.getElementById('clabel').textContent='API unavailable';return null;}
 }
 
 /* ── Overview ── */
@@ -562,16 +602,17 @@ async function refreshOv(){
       const s=await sR.value.json();
       processedRows=s.total_processed||0;
       document.getElementById('kpi-proc').textContent=fN(s.total_processed);
-      document.getElementById('kpi-eps').textContent=`since process start · current replay ${(s.events_per_sec||0).toFixed(1)} events/s`;
-      document.getElementById('kpi-norm').textContent=fN(s.total_normal);
+      document.getElementById('kpi-eps').textContent='Classified rows · process lifetime';
+      document.getElementById('kpi-norm').textContent='—';
       const tot=Math.max(s.total_processed||1,1);
-      document.getElementById('kpi-npct').textContent=((s.total_normal/tot)*100).toFixed(1)+'% of total';
-      document.getElementById('kpi-thru').textContent=(s.events_per_sec||0).toFixed(1)+'/s';
+      document.getElementById('kpi-npct').textContent='Distinct assets among model-flagged windows';
+      document.getElementById('kpi-thru').textContent=fN((s.graph||{}).total_edges);
+      document.getElementById('kpi-st').textContent='Actual in-memory event graph edges';
       const st=s.stream_status||'stopped';
       _lastStreamStatus=st;
       const feedComplete=st==='stopped'&&(s.replay_total||0)>0&&(s.replay_position||0)>=s.replay_total;
       const stMap={running:'Running',stopped:feedComplete?'Feed complete':'Stopped',paused:'Paused'};
-      document.getElementById('kpi-st').textContent='Replay feed: '+(stMap[st]||st);
+      document.getElementById('kpi-st').textContent='Edges in bounded in-memory graph';
       const rPill=document.getElementById('replay-pill');
       rPill.style.display=st==='running'?'flex':'none';
       document.getElementById('btn-hdr-start').disabled=st==='running';
@@ -583,19 +624,22 @@ async function refreshOv(){
       document.getElementById('h-err').style.color=(s.processing_errors||0)>0?'var(--red)':'var(--green)';
       const syms=s.symbols||{};const keys=Object.keys(syms);
       const symEl=document.getElementById('ov-syms');
-      if(!keys.length){symEl.innerHTML='<div class="sw"><div class="sw-ico">💹</div><div class="sw-title">No symbol data</div><div class="sw-sub">Symbol activity populates during replay</div></div>';}
+      if(!keys.length){symEl.innerHTML='<div class="sw"><div class="sw-ico">/</div><div class="sw-title">No observed assets yet</div><div class="sw-sub">Asset statistics populate when benchmark rows are replayed.</div></div>';}
       else{symEl.innerHTML='<table class="tbl"><thead><tr><th>Symbol</th><th>Latest Price</th><th>Avg Volume</th><th>Chunks</th><th>Latest UTC</th></tr></thead><tbody>'+keys.sort().map(k=>{const v=syms[k];return`<tr><td><strong style="color:var(--blue)">${esc(k)}</strong></td><td class="mono">${fPr(v.latest_price)}</td><td class="mono">${Number(v.avg_volume||0).toFixed(4)}</td><td>${fN(v.event_count)}</td><td style="font-size:10px;color:var(--text3);white-space:nowrap">${sTs(v.latest_timestamp)}</td></tr>`;}).join('')+'</tbody></table>';}
       updateHGraph(s);
     }
     if(epR.status==='fulfilled'&&epR.value.ok){
       const a=await epR.value.json();const eps=a.episodes||[];
       document.getElementById('kpi-ep').textContent=fN(a.total_episodes);
+      const riskEntities=new Set(eps.map(ep=>ep.symbol).filter(Boolean));
+      document.getElementById('kpi-norm').textContent=fN(riskEntities.size);
+      document.getElementById('kpi-npct').textContent='Distinct assets among returned flagged windows';
       const tC=eps.reduce((s,e)=>s+e.flagged_chunks,0);
       document.getElementById('kpi-chunks').textContent='flagged 5-second chunks: '+fN(tC)+' · this process';
       const nb=document.getElementById('sb-al');
       nb.style.display=a.total_episodes>0?'inline':'none';if(a.total_episodes>0)nb.textContent=a.total_episodes;
       const alEl=document.getElementById('ov-ep-list');
-      if(!eps.length){alEl.innerHTML='<div class="sw"><div class="sw-ico">🔍</div><div class="sw-title">No episodes detected</div><div class="sw-sub">Start the replay to begin detection</div><button class="btn btn-blue btn-sm" onclick="streamStart()">Start Replay</button></div>';}
+      if(!eps.length){alEl.innerHTML='<div class="sw"><div class="sw-ico">/</div><div class="sw-title">No model flags in this session</div><div class="sw-sub">Replay actual benchmark rows; only scores at or above the configured threshold appear here.</div><button class="btn btn-blue btn-sm" onclick="streamStart()">Start historical replay</button></div>';}
       else{alEl.innerHTML=eps.slice(0,7).map(ep=>epRowMini(ep)).join('');}
       updateTLChart(eps,processedRows);
     }
@@ -640,7 +684,8 @@ function updateTLChart(eps,processed=0){
   const maxChunks=Math.max(...pts.map(p=>p.chunks),1);
   const gStyle='rgba(204,216,230,.65)';const hits=[];
   ctx.strokeStyle=gStyle;ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){const y=PAD.t+cH*(1-i/4);ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cW,y);ctx.stroke();ctx.fillStyle='#71869e';ctx.font='9px sans-serif';ctx.textAlign='right';ctx.fillText(String(Math.round(maxChunks*i/4)),PAD.l-7,y+3);}
+  const compact=W<520,axisSize=compact?10:12;
+  for(let i=0;i<=4;i++){const y=PAD.t+cH*(1-i/4);ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cW,y);ctx.stroke();ctx.fillStyle='#71869e';ctx.font=`${axisSize}px sans-serif`;ctx.textAlign='right';ctx.fillText(String(Math.round(maxChunks*i/4)),PAD.l-7,y+3);}
   const bW=Math.max(5,Math.min(24,cW/Math.max(pts.length,1)-3));
   pts.forEach((p,i)=>{
     const x=pts.length>1&&maxTs>minTs?PAD.l+((p.ts.getTime()-minTs)/(maxTs-minTs))*cW:PAD.l+cW/2;
@@ -650,8 +695,9 @@ function updateTLChart(eps,processed=0){
     hits.push({x,y,ts:p.ts,chunks:p.chunks,sym:p.sym,risk:p.risk,truth:p.truth});
   });
   const tick=t=>t.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit',timeZone:'UTC'})+' '+t.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'})+' UTC';
-  ctx.fillStyle='#71869e';ctx.font='9px sans-serif';ctx.textAlign='left';ctx.fillText(tick(pts[0].ts),PAD.l,H-4);ctx.textAlign='right';ctx.fillText(tick(pts[pts.length-1].ts),PAD.l+cW,H-4);
-  ctx.fillStyle='#536980';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('Benchmark event time · flagged chunks per unique window',W/2,H-20);
+  const tickLabel=t=>compact?t.toLocaleDateString('en-GB',{day:'2-digit',month:'short',timeZone:'UTC'})+' '+t.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'UTC'}):tick(t);
+  ctx.fillStyle='#71869e';ctx.font=`${axisSize}px sans-serif`;ctx.textAlign='left';ctx.fillText(tickLabel(pts[0].ts),PAD.l,H-4);ctx.textAlign='right';ctx.fillText(tickLabel(pts[pts.length-1].ts),PAD.l+cW,H-4);
+  ctx.fillStyle='#536980';ctx.font=`bold ${compact?10:12}px sans-serif`;ctx.textAlign='center';ctx.fillText(compact?'Flagged chunks per benchmark window':'Benchmark event time · flagged chunks per unique window',W/2,H-20);
   canvas.setAttribute('aria-label',`Timeline of ${pts.length} model-flagged benchmark windows, grouped by unique event ID.`);
   canvas.onmousemove=e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*canvas.width/r.width,y=(e.clientY-r.top)*canvas.height/r.height;let best=null,dist=Infinity;for(const h of hits){const d=Math.hypot(x-h.x,y-(h.y+Math.min(10,cH*.12)));if(d<dist){best=h;dist=d;}}if(best&&dist<22){const gt=best.truth===1?' · dataset label: pump':best.truth===0?' · dataset label: normal':'';canvas.title=`${best.sym} · ${tick(best.ts)}\n${best.chunks} flagged 5-second chunks · peak raw score ${fP(best.risk)}${gt}`;}else canvas.title='Flagged chunks per unique benchmark window; hover a bar for details.';};
   canvas.title='Flagged chunks per unique benchmark window; hover a bar for details.';
@@ -674,15 +720,16 @@ function updateRiskChart(events){
   scores.forEach(score=>{const i=Math.min(BUCKETS-1,Math.max(0,Math.floor(score*BUCKETS)));counts[i]++;});
   const maxC=Math.max(...counts,1);
   const gStyle='rgba(204,216,230,.65)';
-  for(let i=0;i<=4;i++){const y=PAD.t+cH*(1-i/4);ctx.strokeStyle=gStyle;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cW,y);ctx.stroke();ctx.fillStyle='#7a8ca3';ctx.font='9px sans-serif';ctx.textAlign='right';ctx.fillText(Math.round(maxC*i/4),PAD.l-5,y+3);}
+  const compact=W<520,axisSize=compact?10:12;
+  for(let i=0;i<=4;i++){const y=PAD.t+cH*(1-i/4);ctx.strokeStyle=gStyle;ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(PAD.l,y);ctx.lineTo(PAD.l+cW,y);ctx.stroke();ctx.fillStyle='#7a8ca3';ctx.font=`${axisSize}px sans-serif`;ctx.textAlign='right';ctx.fillText(Math.round(maxC*i/4),PAD.l-5,y+3);}
   const bW=(cW/BUCKETS)-3;
   counts.forEach((c,i)=>{
     const x=PAD.l+i*(cW/BUCKETS)+2;const bH=(c/maxC)*cH;const y=PAD.t+cH-bH;
     ctx.fillStyle=i<4?'rgba(19,134,108,.78)':i===4?'rgba(200,122,34,.82)':'rgba(217,87,95,.82)';
     ctx.fillRect(x,y,bW,bH);
-    ctx.fillStyle='#71869e';ctx.font='8px sans-serif';ctx.textAlign='center';ctx.fillText((i/10).toFixed(1)+'–'+((i+1)/10).toFixed(1),x+bW/2,H-4);
+    if(!compact||i%2===0||i===5||i===9){ctx.fillStyle='#71869e';ctx.font=compact?'10px sans-serif':'11px sans-serif';ctx.textAlign='center';ctx.fillText(compact?(i/10).toFixed(1):(i/10).toFixed(1)+'–'+((i+1)/10).toFixed(1),x+bW/2,H-4);}
   });
-  ctx.fillStyle='#536980';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('Raw XGBoost score interval · recent classified chunks',W/2,H-20);
+  ctx.fillStyle='#536980';ctx.font=`bold ${compact?10:12}px sans-serif`;ctx.textAlign='center';ctx.fillText(compact?'Score bands · alert threshold 0.50':'Raw XGBoost score interval · recent classified chunks',W/2,H-20);
   canvas.setAttribute('aria-label',`Risk score histogram of ${scores.length} recent classified benchmark chunks. The alert threshold is 0.50.`);
   canvas.onmousemove=e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*canvas.width/r.width;const i=Math.floor((x-PAD.l)/(cW/BUCKETS));if(i>=0&&i<BUCKETS){canvas.title=`Score ${(i/10).toFixed(1)}–${((i+1)/10).toFixed(1)} · ${fN(counts[i])} recent chunks · ${i>=5?'model-flag threshold met':'below 0.50 threshold'}. Raw, uncalibrated XGBoost output.`;}else canvas.title='Recent event scores; model-flag threshold 0.50.';};
   canvas.title='Recent event scores; model-flag threshold 0.50.';
@@ -789,7 +836,7 @@ async function loadEvents(){
         <td><span class="badge ${pump?'b-pump':'b-norm'}">${pump?'PREDICTED PUMP':'PREDICTED NORMAL'}</span></td>
         <td style="font-size:10px;color:var(--text3)">${top?esc(top.feature)+'='+Number(top.value).toFixed(4):'—'}</td>
         <td><button class="btn btn-ghost btn-xs" aria-expanded="false" onclick="toggleEventDetail('${detailId}',this)">Details</button></td>
-      </tr><tr class="event-detail-row" id="${detailId}" style="display:none"><td colspan="10"><div class="event-detail-grid"><div class="event-detail-item"><strong>Full window ID</strong>${esc(e.event_id||'—')}</div><div class="event-detail-item"><strong>Model score</strong>${fP(e.risk_score)} · raw, uncalibrated</div><div class="event-detail-item"><strong>Prediction</strong>${pump?'Model flagged (threshold 0.50)':'Model normal (threshold 0.50)'}</div><div class="event-detail-item"><strong>Source label</strong>${truthLabel} — shown only for review</div>${details}</div></td></tr>`;
+      </tr><tr class="event-detail-row" id="${detailId}" style="display:none"><td colspan="10"><div class="event-detail-grid"><div class="event-detail-item"><strong>Full window ID</strong>${esc(e.event_id||'—')}</div><div class="event-detail-item"><strong>Model score</strong>${fP(e.risk_score)} · raw, uncalibrated</div><div class="event-detail-item"><strong>Prediction</strong>${pump?'Model flagged (threshold 0.50)':'Model normal (threshold 0.50)'}</div><div class="event-detail-item"><strong>Source label</strong>${truthLabel} — shown only for review</div>${e.replay_id!=null&&e.sequence!=null?`<div class="event-detail-item"><strong>Graph evidence</strong><button class="btn btn-out btn-xs" onclick="event.stopPropagation();inspectGraphNode('market_${esc(e.replay_id)}_${esc(e.sequence)}')">Open connected graph</button></div>`:''}${details}</div></td></tr>`;
     }).join('');
   }catch(e){tb.innerHTML='<tr><td colspan="10" style="color:var(--red);padding:16px;text-align:center">Events could not be loaded: '+esc(e.message)+'</td></tr>';document.getElementById('ev-page-note').textContent='Check the backend connection, then refresh.';}
 }
@@ -859,7 +906,7 @@ function initGraph(){
   window.addEventListener('mouseup',()=>{gDrag=null;gPan=null;});
   gCvs.addEventListener('mouseleave',()=>{gHov=null;gDrag=null;gPan=null;document.getElementById('gtip').style.display='none';renderG();});
   window.addEventListener('resize',()=>{if(gCvs){gCvs.width=gCvs.parentElement.offsetWidth||700;renderG();}});
-  gCvs.width=gCvs.parentElement.offsetWidth||700;gCvs.height=420;
+  gCvs.width=gCvs.parentElement.offsetWidth||700;gCvs.height=460;
 }
 async function loadGStats(){
   try{const r=await fetch(API+'/api/graph/stats');if(!r.ok)return;const g=await r.json();
@@ -875,7 +922,7 @@ async function loadGStats(){
   }catch{}
 }
 async function loadGraph(){
-  const lim=Math.max(20,Math.min(300,parseInt(document.getElementById('g-lim').value)||120)),status=document.getElementById('g-status');
+  const lim=Math.max(20,Math.min(300,parseInt(document.getElementById('g-lim').value)||200)),status=document.getElementById('g-status');
   status.textContent='Loading current in-memory graph…';
   try{const r=await fetch(API+'/api/graph/nodes?limit='+lim);if(!r.ok)throw new Error('HTTP '+r.status);
     const d=await r.json();gN=(d.nodes||[]).slice(0,lim);gE=d.edges||[];initGPos();renderG();loadSusList();status.textContent=gN.length?`Showing ${fN(gN.length)} nodes · ${fN(gE.length)} returned edges`:'Graph is empty until replayed events are written.';
@@ -899,7 +946,7 @@ async function loadSusList(){
   }catch{}
 }
 function initGPos(){
-  const W=gCvs?gCvs.width:700,H=gCvs?gCvs.height:450;
+  const W=gCvs?gCvs.width:700,H=gCvs?gCvs.height:460;
   gN.forEach((n,i)=>{if(gPos[n.id])return;
     const a=(i/Math.max(gN.length,1))*Math.PI*2;const rad=Math.min(W,H)*0.36;
     gPos[n.id]={x:W/2+rad*Math.cos(a),y:H/2+rad*Math.sin(a)};
@@ -927,7 +974,7 @@ function renderG(){
     if(n===gHov){gCtx.strokeStyle='#fff';gCtx.lineWidth=2.5;gCtx.stroke();}
     if(n.type!=='MarketEvent'||(n.properties||{}).suspicious){
       const lbl=n.type==='CryptoAsset'?(n.properties||{}).symbol||n.id.replace('asset_',''):n.type==='PumpGroup'?n.id.replace('group_',''):(n.properties||{}).symbol||'';
-      if(lbl){gCtx.fillStyle='#243b5a';gCtx.font=`${n.type==='CryptoAsset'?'bold ':''}9px sans-serif`;gCtx.textAlign='center';gCtx.fillText(lbl,pos.x,pos.y-(r+4));}
+      if(lbl){gCtx.fillStyle='#243b5a';gCtx.font=`${n.type==='CryptoAsset'?'bold ':''}12px sans-serif`;gCtx.textAlign='center';gCtx.fillText(lbl,pos.x,pos.y-(r+5));}
     }
   });
   gCtx.restore();
@@ -1021,5 +1068,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   document.querySelector('[onclick="showPage(\'graph\',this)"]').addEventListener('click',()=>{setTimeout(()=>{if(gCvs){gCvs.width=gCvs.parentElement.offsetWidth||700;renderG();}},50);});
 });
 </script>
+<script src="/obsidian.js"></script>
+<script src="/live_market.js"></script>
 </body>
 </html>

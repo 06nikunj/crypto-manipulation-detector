@@ -1,60 +1,25 @@
-# Dataset
+# Bundled benchmark data
 
-## Single Authoritative Dataset
+## Source and attribution
 
-**SystemsLab-Sapienza Pump-and-Dump Benchmark Dataset**
-- **Source:** https://github.com/SystemsLab-Sapienza/pump-and-dump-dataset
-- **Paper:** "Pump and Dumps in the Bitcoin Era: Real Time Detection of Cryptocurrency Market Manipulations," ICCCN 2020
-- **Authors:** M. La Morgia, A. Mei, F. Sassi, J. Stefa
-- **License:** See original repository (research use)
+CryptoSentinel uses the [SystemsLab–Sapienza Pump-and-Dump Dataset](https://github.com/SystemsLab-Sapienza/pump-and-dump-dataset), associated with the paper:
 
-## Files
+> M. La Morgia, A. Mei, F. Sassi, and J. Stefa, “Pump and Dumps in the Bitcoin Era: Real Time Detection of Cryptocurrency Market Manipulations,” *2020 29th International Conference on Computer Communications and Networks (ICCCN)*, 2020, pp. 1–9. DOI: [10.1109/ICCCN49398.2020.9209660](https://doi.org/10.1109/ICCCN49398.2020.9209660).
 
-| File | Description | Rows |
-|------|-------------|------|
-| `pump_telegram.csv` | Raw labeled pump events from Telegram groups | ~900 |
-| `group.csv` | Telegram group metadata | ~20 |
-| `pump_events_clean.csv` | Cleaned and parsed pump events | ~900 |
-| `labeled_trades.csv` | Generated trade-chunk dataset with features + labels | ~80K |
+The upstream GitHub repository declares the MIT License. Its copyright and license notice is included at `pump_dump_dataset/LICENSE` and should accompany redistributed benchmark files.
 
-## Schema
+## Included files
 
-### pump_telegram.csv (original from Sapienza)
-| Column | Type | Description |
-|--------|------|-------------|
-| symbol | string | Pumped coin symbol (e.g. "BTC") |
-| group | string | Telegram group code |
-| date | date | Pump date (UTC) |
-| hour | time | Pump hour (UTC) |
-| exchange | string | Exchange (usually "binance") |
+| File | Description |
+|---|---|
+| `pump_dump_dataset/labeled_trades.csv` | Project-prepared labeled five-second trade chunks used by the replay and XGBoost inference pipeline: 96,000 rows, including 4,800 pump-labeled and 91,200 normal-labeled rows. |
+| `pump_dump_dataset/pump_events_clean.csv` | Cleaned benchmark pump-event records used for attribution and event/window context. |
+| `pump_dump_dataset/pump_telegram.csv` | Benchmark event/group records derived from the source dataset. |
+| `pump_dump_dataset/LICENSE` | Upstream MIT license and copyright notice. |
 
-### labeled_trades.csv (generated)
-| Column | Type | Description |
-|--------|------|-------------|
-| timestamp | datetime | UTC timestamp of chunk |
-| symbol | string | Trading pair symbol |
-| price | float | Closing price (SYM/BTC) |
-| volume | float | Trade volume (BTC) |
-| n_trades | int | Number of trades in chunk |
-| rush_orders | int | Number of rapid buy orders |
-| buy_ratio | float | Fraction of buy-side trades |
-| is_pump | int | Ground truth label (0=normal, 1=pump) |
-| event_id | string | Unique event identifier |
-| group | string | Telegram group code |
-| exchange | string | Exchange |
+The supplied `labeled_trades.csv` is historical benchmark data, not a feed of current exchange trades. Its source `is_pump` field is ground truth for retrospective evaluation; it is not used as an inference feature.
 
-## Download
-
-```bash
-python3 data/download.py
-```
-
-Network access is required to fetch `pump_telegram.csv` and `group.csv`.
-If offline, the script generates a synthetic-but-structurally-identical fallback.
-
-## Attribution
-
-If you use this dataset, cite the original paper:
+## Citation
 
 ```bibtex
 @INPROCEEDINGS{9209660,

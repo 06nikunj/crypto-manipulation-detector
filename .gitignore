@@ -1,11 +1,28 @@
-
-.venv/
-venv/
+# Python bytecode and caches
 __pycache__/
 *.py[cod]
+*.pyo
+.ipynb_checkpoints/
 
-# Python environment and generated files
+# Local environments and secrets
 .venv/
 venv/
-__pycache__/
-*.py[cod]
+env/
+.env
+.env.*
+!.env.example
+
+# Test, type-check, and coverage output
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local/editor/OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Runtime logs
+*.log
