@@ -1,123 +1,132 @@
-# CryptoSentinel — Market Integrity Intelligence
+# CryptoSentinel — Live Market Monitor & Historical Benchmark
 
-CryptoSentinel is a research prototype for **historical pump-and-dump benchmark replay**. It replays the bundled SystemsLab–Sapienza labeled trade chunks in timestamp order, derives rolling features, scores each chunk with the saved XGBoost model, and presents events, alerts, graph relationships, and benchmark evaluation in a Flask-served dashboard.
+CryptoSentinel is a research prototype with two explicitly separate data paths:
 
-> **Replay, not live detection.** The default app does not connect to a live exchange or ingest current market data. Replay speed controls only change how quickly historical rows are presented; they do not alter the data or prediction scores.
+1. **Live Markets:** a user-started, read-only connection to Binance Spot's public WebSocket trade streams. The dashboard shows received trades, locally recorded receipt times, observed five-second bars, and explainable price/volume rule warnings.
+2. **Historical Benchmark:** the bundled SystemsLab–Sapienza labeled dataset, its saved XGBoost artifacts, and optional replay/evaluation views. Benchmark rows and scores are never presented as current exchange activity.
 
-## What is included
+> **Not a trading system or manipulation verdict.** The live rule engine produces review cues, not proof of pump-and-dump activity. The saved XGBoost model is not applied to raw Binance trades because its benchmark-specific feature schema has not been validated for them.
 
-- Seven dashboard areas: Overview, Stream, Events, Alerts, Graph, Evaluation, and Dataset.
-- Flask JSON API and a responsive, same-origin HTML dashboard.
-- Bundled `labeled_trades.csv`, `pump_events_clean.csv`, and `pump_telegram.csv` benchmark data.
-- Saved XGBoost detector and scaler under `models/`, plus the stored chronological test metrics.
-- An in-memory event graph. It describes market-event relationships; it does **not** represent wallet transactions.
-- Kafka, Spark, Neo4j, and Grafana support files are parts of the broader project layout, but are not required to run the local dashboard demonstration.
+## Live dashboard
 
-## Architecture
+The primary navigation is **Overview, Live Markets, Events, Alerts, Graph Analysis, Model Evaluation, Dataset & Benchmark, and System Health**. The historical replay, benchmark event/alert pages, and historical relationship graph remain available as secondary research tools from Dataset & Benchmark or the replay page.
 
-```text
-Bundled benchmark CSV
-        │ timestamp-ordered replay (5-second observations; adjustable playback multiplier)
-        ▼
-Flask StreamController → rolling feature extraction → saved StandardScaler → XGBoost
-                                                │                │
-                                                ▼                ▼
-                                      event/episode API     in-memory event graph
-                                                │
-                                                ▼
-                                  CryptoSentinel dashboard
-```
+The live connection starts only when **Connect** is pressed. The application server subscribes to a bounded list of public `@trade` streams and forwards actual messages to the browser over Server-Sent Events. No exchange API key, account access, trading permission, orders, or user data stream is used.
 
-The replay preserves source chronology. For each observation, the inference path computes the 12 features used by the project model: `price_change_pct`, `price_std`, `volume`, `volume_change_pct`, `volume_std`, `n_trades`, `trade_freq`, `rush_order_ratio`, `buy_ratio`, `avg_trade_size`, `rolling_volatility`, and `anomaly_score`. Rolling windows include the current chunk and use the same sample-standard-deviation convention as training preprocessing.
+For each actual trade the dashboard can display the exchange trade ID, pair, price, base quantity, derived quote quantity, exchange event/trade timestamps, and local receipt timestamp. It aggregates received trades into **observed, non-empty five-second bars**. Bars close after a real trade arrives in a later bucket; the app does not manufacture empty bars or interpolate prices.
 
-Processed/normal/pump-prediction/error counters are distinct. Alert cards group flagged chunks by the dataset's event/window ID, while the graph assigns a separate node to each replayed chunk. Graph edges mean `BELONGS_TO` (event to asset), `NEXT` (consecutive observed chunks for that asset in a replay), and `ORGANIZED_BY` (a benchmark pump event's Telegram group code).
+### Live rule warnings
 
-## Dataset attribution
+The current demonstration rules operate on closed, observed five-second bars:
 
-The bundled benchmark is the [SystemsLab–Sapienza Pump-and-Dump Dataset](https://github.com/SystemsLab-Sapienza/pump-and-dump-dataset), associated with:
+- A close-to-close price move of at least **1.0%**; or
+- Base volume of at least **3× the median** of the preceding 20 observed, non-empty bars (the rule remains in warm-up until that baseline exists).
 
-> M. La Morgia, A. Mei, F. Sassi, and J. Stefa, “Pump and Dumps in the Bitcoin Era: Real Time Detection of Cryptocurrency Market Manipulations,” *2020 29th International Conference on Computer Communications and Networks (ICCCN)*, 2020, pp. 1–9. DOI: [10.1109/ICCCN49398.2020.9209660](https://doi.org/10.1109/ICCCN49398.2020.9209660).
+Warnings include source bar time, local detection time, the rule signal, and observed values. The threshold choices are heuristic, are not calibrated risk probabilities, and do not prove manipulation. There is **no live XGBoost score or prediction**. The saved model and its metrics remain confined to the historical benchmark views.
 
-The repository's `data/README.md` documents file schemas and original source attribution. Check the upstream repository's current terms before redistributing the benchmark. The provided `labeled_trades.csv` is the project-prepared labeled trade-chunk file; its labels and generated/engineered fields are benchmark data, not a feed of present-day exchange trades.
-
-## Limitations and responsible interpretation
-
-- This is a **historical benchmark replay**, not a market-connected live service, execution system, or trading recommendation.
-- Evaluation scores in `models/eval_metrics.json` describe the project's stored chronological benchmark test split only. High benchmark precision/recall/F1/PR-AUC do **not** guarantee accuracy on live markets, other assets, exchanges, time periods, or manipulation strategies; they do not establish profitability.
-- Risk scores are raw XGBoost output probabilities and are not externally calibrated. The default alert threshold is 0.50.
-- The benchmark does not contain wallet addresses. The graph is an event/asset/group graph, not a wallet-to-wallet transaction graph; it cannot substantiate wallet coordination or wash trading.
-- No live Telegram stream, exchange WebSocket, Kafka broker, Neo4j server, or Grafana instance is started by the dashboard command. The related project modules are optional/incomplete integrations for this local demonstration.
-- The graph is an in-memory bounded view (up to 5,000 nodes and 10,000 edges), and the Events API presents the most recent 2,000 in-memory classified rows. Run counters and deduplicated episode totals are process-local and reset when the Flask process restarts.
-- The supplied benchmark metrics are precomputed artifacts; launching the dashboard does not retrain or independently revalidate the model.
-
-## Faculty walkthrough: what the dashboard actually does
-
-1. **Start Replay** reads the bundled, prepared `labeled_trades.csv` in timestamp order and places historical 5-second observations on the local replay queue. The speed selector changes playback pacing only.
-2. The serving preprocessor computes the model's 12 input features from the current observation and same-symbol rolling history. Ground-truth label fields are not selected as model features.
-3. The saved scaler and XGBoost classifier return a **raw output score**. A score at or above the configured `0.50` threshold is a **model prediction**, not a confirmed manipulation event.
-4. Every flagged 5-second chunk contributes to the flagged-chunk count. Chunks sharing a benchmark `event_id` are deduplicated into one episode card; its `flagged_chunks` value reports the number of flagged chunks in that window.
-5. The graph writer records market-event, asset, and available benchmark group relationships in process memory. It has no wallet-address or transaction data.
-6. Flask serves the actual in-process replay/graph state and the stored test metrics to the dashboard. The Evaluation tab reads `models/eval_metrics.json`; it does not silently rerun training.
-
-**Counter scope:** `Events Processed` is the pipeline's cumulative number of dequeued chunks (including a chunk whose feature/model handling records an exception). `Normal Events` counts chunks predicted `NORMAL`; flagged chunks are counted separately as model predictions. Unique flagged episodes are distinct benchmark event/window IDs, not chunks. The Events explorer date/search/score filters operate on the bounded **most recent 2,000** in-memory event records; they do not query the entire CSV. The graph is also a bounded in-memory view. Replay counters, alert acknowledgments, and graph state reset when the Flask process restarts.
-
-**For a short presentation:** open Overview and expand **How the data moves through CryptoSentinel**; start a replay; pause/resume it to show the controller; inspect a flagged prediction in Alerts and compare its benchmark label only in the expanded details; then show the confusion matrix and note that benchmark scores are not a live trading guarantee.
+The live graph is bounded to the current process session. Green nodes represent subscribed pairs, small nodes represent observed market bars, red nodes crossed a displayed rule, and links represent observed pair/bar or consecutive-bar relationships. It contains **no wallets, addresses, ownership links, order-book depth, or transaction graph**.
 
 ## Requirements
 
-- macOS 13+ or a recent Linux distribution.
-- Python 3.12 recommended for the bundled model artifacts and dependency set.
-- Internet access for initial package installation. The benchmark CSVs and model artifacts are already bundled, so the dashboard does not need to download data at startup.
+- Python 3.12 is recommended for the bundled model artifacts and pinned requirements.
+- Internet access is required for package installation and the optional Binance public WebSocket connection.
+- The dashboard itself uses the local Flask app. Kafka, Spark, Neo4j, and Grafana are not required.
 
-## Install and start on macOS
+## Install and start
 
-From Terminal, after extracting this project archive, run these commands from the project directory (replace the first path with the folder where you extracted it):
+### macOS / Linux
 
 ```bash
-cd "$HOME/Downloads/crypto-manipulation-detector-main"
-python3 --version                 # Python 3.12 recommended
-python3 -m venv .venv
+cd "$HOME/Downloads/crypto-manipulation-detector-main"  # use the folder you extracted
+python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-PORT=5001 python -m backend.api.app
+BINANCE_SYMBOLS=BTCUSDT,ETHUSDT,BNBUSDT PORT=5001 python -m backend.api.app
 ```
 
-Keep that Terminal window open. Open **http://127.0.0.1:5001** in a browser. Use **Start Replay** or the Stream tab to start the historical replay; pause, resume, stop, and playback-speed controls are provided there. Stop the process with **Ctrl+C**. In a later Terminal session, restart with:
+Open **http://127.0.0.1:5001**, select **Connect**, and wait for actual trade messages. Keep the Terminal window open. Stop the application with **Ctrl+C**. To use the default symbols, omit `BINANCE_SYMBOLS`; the default watchlist is BTCUSDT, ETHUSDT, and BNBUSDT.
+
+### Windows PowerShell
+
+```powershell
+cd "$HOME\Downloads\crypto-manipulation-detector-main"  # use the folder you extracted
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+$env:BINANCE_SYMBOLS = "BTCUSDT,ETHUSDT,BNBUSDT"
+$env:PORT = "5001"
+.\.venv\Scripts\python.exe -m backend.api.app
+```
+
+Open **http://127.0.0.1:5001** and press **Connect**. Stop with **Ctrl+C**. `BINANCE_SYMBOLS` accepts comma-separated uppercase Spot pair symbols; input is validated and deduplicated server-side, with a maximum of 20 pairs. Disconnecting or restarting clears the in-memory live session.
+
+## Optional Kafka bridge
+
+The dashboard's primary live path runs directly from the public WebSocket to its in-memory live manager; Kafka is optional. If you already have a Kafka broker available, the standalone bridge forwards the same actual public trade messages to the `market_trades` topic:
 
 ```bash
-cd "$HOME/Downloads/crypto-manipulation-detector-main"
-source .venv/bin/activate
-PORT=5001 python -m backend.api.app
+KAFKA_BROKERS=localhost:9092 KAFKA_TOPIC=market_trades \
+  python3 backend/kafka/binance_producer.py
 ```
 
-The dataset downloader and model trainer are not needed for the bundled demonstration. To intentionally retrain, use `python scripts/train_models.py`; this overwrites the model/scaler and evaluation artifacts, so keep a copy of the supplied artifacts if you need them.
+The `kafka-python` dependency is listed in `requirements.txt`. This script does not start a broker; set `BINANCE_SYMBOLS` as needed. No Spark streaming job is started by the dashboard.
 
 ## API reference
 
-The local service exposes:
+### Live session
+
+- `GET /api/live/status` — API, connection, rule and model capability status.
+- `POST /api/live/start` with `{"symbols":["BTCUSDT","ETHUSDT"]}` — start/replace the public stream.
+- `POST /api/live/stop` — stop the live stream.
+- `GET /api/live/snapshot` — bounded live trades, latest prices, bars, rule warnings and graph preview.
+- `GET /api/live/events?limit=100` — recent raw validated trade messages.
+- `GET /api/live/alerts?limit=50` — recent rule-based warnings.
+- `GET /api/live/graph?limit=300` — bounded live market-bar graph.
+- `GET /api/live/stream` — Server-Sent Events for `snapshot`, `status`, `trade`, `bar`, and `alert` updates.
+
+### Historical benchmark
 
 - `GET /api/health`
 - `GET /api/stream/status`; `POST /api/stream/start`, `/pause`, `/resume`, `/stop`, `/speed`
-- `GET /api/events` and `/api/events/summary`
+- `GET /api/events`, `/api/events/summary`
 - `GET /api/alerts`, `/api/alerts/episodes`; `POST /api/alerts/episodes/<episode-id>/acknowledge`
 - `GET /api/graph/nodes`, `/suspicious`, `/stats`, `/neighbors/<node-id>`, `/asset/<symbol>`
-- `GET /api/evaluation` and `/api/dataset`
+- `GET /api/evaluation`, `/api/dataset`, and `/api/dataset/sample?limit=6`
+
+Live counters, events, alerts and graph state are bounded and kept in process memory; they reset when a new live session or Flask process starts. Historical replay state remains separate.
+
+## Benchmark, attribution and limitations
+
+The bundled benchmark is the [SystemsLab–Sapienza Pump-and-Dump Dataset](https://github.com/SystemsLab-Sapienza/pump-and-dump-dataset), associated with M. La Morgia, A. Mei, F. Sassi, and J. Stefa, “Pump and Dumps in the Bitcoin Era: Real Time Detection of Cryptocurrency Market Manipulations,” *ICCCN*, 2020, DOI: [10.1109/ICCCN49398.2020.9209660](https://doi.org/10.1109/ICCCN49398.2020.9209660). Source-file details and license attribution are in `data/README.md` and `data/pump_dump_dataset/LICENSE`.
+
+Stored evaluation metrics describe the project's chronological historical test split only. They do not establish live-market accuracy, calibration, profitability, or generalization to other exchanges, assets, time periods, or manipulation strategies. The benchmark does not contain wallet addresses. It must not be interpreted as proof of wallet coordination, wash trading, spoofing, or current market activity. Launching the dashboard does not retrain or independently revalidate the model.
+
+Binance interface references and implementation notes: [`docs/binance_market_stream_sources.md`](docs/binance_market_stream_sources.md), including the [official Spot WebSocket Streams documentation](https://developers.binance.com/en/docs/products/spot/web-sockets/market-data-streams). Review current exchange terms and applicable local rules before operating a public-data client.
 
 ## Project structure
 
 ```text
-backend/api/app.py                    Flask routes and dashboard serving
-backend/spark/src/ingestion.py        Historical CSV replay controller
-backend/spark/src/preprocessing.py    Feature engineering and inference features
-backend/spark/src/anomaly_detection.py XGBoost inference, counters, alert episodes
-backend/spark/src/graph_builder.py     In-memory market-event relationship graph
-frontend/index.html                    Seven-tab CryptoSentinel dashboard
-data/pump_dump_dataset/               Bundled benchmark files
-models/                                XGBoost, scaler, stored evaluation metrics
-scripts/                               Training and evaluation utilities
+backend/api/app.py                     Flask routes and dashboard serving
+backend/live/market_stream.py          Public trade client, five-second bars, rule detector and bounded live state
+backend/kafka/binance_producer.py      Optional public WebSocket -> Kafka bridge
+backend/spark/src/                       Historical replay, features, XGBoost and benchmark graph
+frontend/index.html                     Live-first UI plus separate benchmark pages
+frontend/live_market.js                 Live SSE client, charts, event/alert/graph renderers
+frontend/obsidian.css                   Shared responsive design system
+frontend/obsidian.js                    Historical benchmark UI renderers
+models/                                  Saved model/scaler and benchmark metrics
+data/                                    Bundled historical benchmark and attribution
+scripts/                                 Training and evaluation utilities
+tests/test_live_market_stream.py        Offline live-schema, bar and rule tests
 ```
 
-## Quick verification
+## Verification
 
-After starting the server, `curl http://127.0.0.1:5001/api/health` should return JSON. The dashboard refreshes the active view from the Flask API; events and alerts are not fabricated when the replay is stopped.
+```bash
+.venv/bin/python -m unittest discover -s tests -v
+node --check frontend/live_market.js
+curl http://127.0.0.1:5001/api/live/status
+```
+
+For upstream stream limits, payload definitions, and lifecycle details see [`docs/binance_market_stream_sources.md`](docs/binance_market_stream_sources.md).

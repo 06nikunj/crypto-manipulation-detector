@@ -1,66 +1,78 @@
+"""Optional bridge: Binance public Spot trades -> Kafka.
+
+The Flask dashboard uses backend.live.market_stream directly and does not need
+Kafka. Run this standalone bridge only if a Kafka broker is available:
+
+    KAFKA_BROKERS=localhost:9092 python3 backend/kafka/binance_producer.py
+
+No exchange API key or trading permission is used. The producer forwards raw
+public trade messages; it does not make prediction or manipulation claims.
 """
-Kafka Producer - Binance Live Trade Ingestion
-Project: Real-Time Cryptocurrency Market Manipulation Detection
-Author: Nikunj
-"""
+from __future__ import annotations
 
 import json
+import logging
+import os
+import sys
 import time
+from pathlib import Path
 
-# Kafka Configuration
-KAFKA_BROKER = "localhost:9092"
-TOPIC_MARKET = "market_trades"
-TOPIC_TELEGRAM = "telegram_signals"
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
 
-COINS = ["BTCUSDT", "ETHUSDT", "DOGEUSDT", "XRPUSDT", "SOLUSDT",
-         "ADAUSDT", "SHIBUSDT", "AVAXUSDT", "DOTUSDT", "MATICUSDT"]
+from backend.live.market_stream import LiveMarketManager, configured_symbols  # noqa: E402
 
-def create_producer():
-    """Initialize Kafka producer with JSON serializer."""
-    from kafka import KafkaProducer
-    return KafkaProducer(
-        bootstrap_servers=KAFKA_BROKER,
-        value_serializer=lambda v: json.dumps(v).encode("utf-8")
-    )
+LOG = logging.getLogger("binance_kafka_bridge")
 
-def fetch_binance_trades(coin, limit=5):
-    """Fetch latest trades from Binance REST API."""
-    from binance.client import Client
-    client = Client()
-    trades = client.get_recent_trades(symbol=coin, limit=limit)
-    return [
-        {
-            "coin": coin,
-            "price": float(t["price"]),
-            "volume": float(t["qty"]),
-            "timestamp": t["time"],
-            "is_buyer": t["isBuyerMaker"],
-            "trade_id": t["id"]
-        }
-        for t in trades
-    ]
 
-def run_producer():
-    """Main loop: fetch trades and push to Kafka every 2 seconds."""
-    producer = create_producer()
-    print("=" * 50)
-    print("  KAFKA PRODUCER STARTED")
-    print(f"  Broker: {KAFKA_BROKER}")
-    print(f"  Topic:  {TOPIC_MARKET}")
-    print(f"  Coins:  {len(COINS)} pairs")
-    print("=" * 50)
+def main() -> int:
+    logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
+    brokers = [value.strip() for value in os.getenv("KAFKA_BROKERS", "localhost:9092").split(",") if value.strip()]
+    topic = os.getenv("KAFKA_TOPIC", "market_trades")
+    try:
+        from kafka import KafkaProducer
+        producer = KafkaProducer(
+            bootstrap_servers=brokers,
+            value_serializer=lambda value: json.dumps(value, separators=(",", ":")).encode("utf-8"),
+            request_timeout_ms=5_000,
+            api_version_auto_timeout_ms=5_000,
+            retries=3,
+        )
+        producer.partitions_for(topic)
+    except Exception as exc:
+        LOG.error("Kafka broker/topic unavailable (%s); bridge not started: %s", ",".join(brokers), exc)
+        return 2
 
-    while True:
-        for coin in COINS:
-            try:
-                trades = fetch_binance_trades(coin)
-                for trade in trades:
-                    producer.send(TOPIC_MARKET, value=trade)
-                print(f"  ✅ {coin} → {len(trades)} trades sent")
-            except Exception as e:
-                print(f"  ❌ {coin} error: {e}")
-        producer.flush()
-        time.sleep(2)
+    manager = LiveMarketManager()
+    count = 0
+    def publish(trade: dict) -> None:
+        nonlocal count
+        producer.send(topic, trade)
+        count += 1
+        if count == 1 or count % 1000 == 0:
+            LOG.info("Forwarded %d actual trades to topic %s", count, topic)
+
+    manager.add_trade_listener(publish)
+    result = manager.start(configured_symbols())
+    if not result.get("ok"):
+        producer.close(timeout=5)
+        LOG.error("Could not start Binance stream: %s", result.get("error"))
+        return 2
+    LOG.info("Forwarding public Binance Spot trades for %s to Kafka topic %s", ", ".join(configured_symbols()), topic)
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        LOG.info("Stopping bridge after %d trade messages", count)
+    finally:
+        manager.stop()
+        try:
+            producer.flush(timeout=10)
+            producer.close(timeout=10)
+        except Exception:
+            LOG.exception("Kafka producer cleanup failed")
+    return 0
+
 
 if __name__ == "__main__":
-    run_producer()
+    raise SystemExit(main())

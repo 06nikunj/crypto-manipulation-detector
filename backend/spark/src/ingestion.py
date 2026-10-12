@@ -144,7 +144,7 @@ class StreamController:
 
     def _replay_loop(self):
         """Load dataset and emit events into EVENT_QUEUE.
-
+        
         Preserve the benchmark's timestamp order exactly. Do not shuffle or
         stratify by the ground-truth label: chronological ordering is required
         for rolling per-symbol features to behave like the training pipeline.
