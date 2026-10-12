@@ -18,6 +18,7 @@ import sys
 import time
 import math
 import atexit
+import threading
 from pathlib import Path
 from datetime import datetime, timezone
 
@@ -28,6 +29,7 @@ from flask import Flask, jsonify, request, send_from_directory, Response
 from flask_cors import CORS
 from flask import stream_with_context
 from backend.live.market_stream import LiveMarketManager, normalize_symbols, configured_symbols
+from backend.integrations.service_pipeline import pipeline as integration_pipeline
 
 # ── lazy imports — only loaded after startup ───────────────────────────────────
 _ingestion_loaded   = False
@@ -89,6 +91,26 @@ app = Flask(__name__, static_folder=str(ROOT / "frontend"))
 CORS(app)
 live_market = LiveMarketManager()
 atexit.register(live_market.stop)
+atexit.register(integration_pipeline.stop)
+_integration_start_lock = threading.Lock()
+_integration_started = False
+
+
+def _ensure_integrations_started():
+    global _integration_started
+    if _integration_started:
+        return
+    with _integration_start_lock:
+        if not _integration_started:
+            integration_pipeline.start(live_market)
+            _integration_started = True
+
+
+@app.before_request
+def initialize_optional_integrations():
+    # Optional services are initialized once on first request. The benchmark-only
+    # Flask app still starts and serves its existing API when they are absent.
+    _ensure_integrations_started()
 
 
 # ── Binance Spot live-market API (separate from benchmark replay) ──────────────
@@ -101,8 +123,9 @@ def live_status():
         "ingestion": {"status": "active" if state["connection_status"] == "connected" else "idle",
                       "transport": "Binance public combined trade WebSocket", "credentials_required": False},
         "optional_services": {
-            "kafka": {"status": "not_configured", "detail": "The dashboard uses its bounded in-memory live path; the optional Kafka bridge is separate."},
-            "spark": {"status": "not_configured", "detail": "No Spark streaming job is configured or running in this project."},
+            "kafka": integration_pipeline.kafka.health(),
+            "spark": integration_pipeline.status().get("services", {}).get(
+                "spark", {"status": "not_configured", "detail": "Spark status is available on System Health."}),
         },
         "historical_benchmark": {"status": "separate", "note": "Historical replay and saved evaluation remain on Dataset & Benchmark / Model Evaluation."},
     })
@@ -202,7 +225,90 @@ def health():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "dataset"  : _dataset_info(),
         "model"    : _model_info(),
+        "integrations_initialized": _integration_started,
     })
+
+
+@app.route("/api/pipeline/status")
+def pipeline_status():
+    _ensure_integrations_started()
+    services = integration_pipeline.current_service_status()
+    return jsonify({
+        "application": "healthy",
+        "checked_at": datetime.now(timezone.utc).isoformat(),
+        "services": services,
+        "pipeline": integration_pipeline.status(),
+        "historical_replay": _stream.get_state() if _ingestion_loaded else {
+            "status": "idle", "detail": "The local in-process benchmark replay starts when requested."},
+        "live_market": live_market.status(),
+        "model": _model_info(),
+    })
+
+
+@app.route("/api/metrics")
+def pipeline_metrics():
+    _ensure_integrations_started()
+    limit = _query_int("limit", 500, 1, 2000)
+    time_range = request.args.get("range", "1h").strip()
+    try:
+        result = integration_pipeline.metrics(limit=limit, time_range=time_range)
+        return jsonify(result)
+    except ValueError as exc:
+        return jsonify({"available": False, "source": "influxdb", "error": str(exc)}), 400
+    except Exception as exc:
+        return jsonify({"available": False, "source": "influxdb", "error": str(exc)[:240]}), 503
+
+
+@app.route("/api/pipeline/events")
+def pipeline_events():
+    _ensure_integrations_started()
+    limit = _query_int("limit", 100, 1, 1000)
+    return jsonify({"events": integration_pipeline.recent_events(limit),
+                    "count": len(integration_pipeline.recent_events(limit)),
+                    "scope": "events consumed from Spark processed_events topic in this API process"})
+
+
+@app.route("/api/pipeline/alerts")
+def pipeline_alerts():
+    _ensure_integrations_started()
+    alerts = integration_pipeline.recent_alerts(_query_int("limit", 100, 1, 500))
+    return jsonify({"alerts": alerts, "count": len(alerts),
+                    "scope": "model predictions on historical benchmark rows and transparent live rule warnings"})
+
+
+@app.route("/api/pipeline/replay/status")
+def kafka_replay_status():
+    _ensure_integrations_started()
+    return jsonify(integration_pipeline.replay.status())
+
+
+@app.route("/api/pipeline/replay/start", methods=["POST"])
+def kafka_replay_start():
+    _ensure_integrations_started()
+    payload = request.get_json(silent=True) or {}
+    result = integration_pipeline.replay.start(
+        speed=payload.get("speed", 100), max_rows=payload.get("max_rows", 1000))
+    return jsonify(result), (200 if result.get("ok") else 400)
+
+
+@app.route("/api/pipeline/replay/pause", methods=["POST"])
+def kafka_replay_pause():
+    _ensure_integrations_started()
+    result = integration_pipeline.replay.pause()
+    return jsonify(result), (200 if result.get("ok") else 409)
+
+
+@app.route("/api/pipeline/replay/resume", methods=["POST"])
+def kafka_replay_resume():
+    _ensure_integrations_started()
+    result = integration_pipeline.replay.resume()
+    return jsonify(result), (200 if result.get("ok") else 409)
+
+
+@app.route("/api/pipeline/replay/stop", methods=["POST"])
+def kafka_replay_stop():
+    _ensure_integrations_started()
+    return jsonify(integration_pipeline.replay.stop())
 
 
 # ── stream controls ────────────────────────────────────────────────────────────
@@ -280,7 +386,13 @@ def get_events():
     min_risk = max(0.0, min(1.0, _query_float("min_risk", 0.0)))
     query = request.args.get("q", "").strip().casefold()
 
-    events = get_recent_events(2000)   # fetch full ring buffer then filter
+    events = get_recent_events(2000)   # local historical replay buffer
+    events.extend(integration_pipeline.recent_events(2000))
+    unique = {}
+    for event in events:
+        key = event.get("record_id") or f"{event.get('source', 'local')}:{event.get('event_id', '')}:{event.get('event_timestamp', '')}"
+        unique[key] = event
+    events = list(unique.values())
 
     if symbol:
         events = [e for e in events if e.get("symbol", "") == symbol]
@@ -304,7 +416,8 @@ def get_events():
     page = events[offset:offset + limit]
     return jsonify({"events": page, "count": len(events), "returned": len(page),
                     "offset": offset, "has_more": offset + len(page) < len(events),
-                    "scope": "recent_in_memory", "window_size": 2000})
+                    "scope": "recent_process_buffers", "window_size": 4000,
+                    "sources": ["historical_local_replay", "Kafka/Spark consumer"]})
 
 
 @app.route("/api/events/summary")
@@ -381,7 +494,13 @@ def get_alerts():
     from backend.spark.src.anomaly_detection import get_recent_alerts
     limit  = _query_int("limit", 50, 1, 500)
     alerts = get_recent_alerts(limit)
-    return jsonify({"alerts": alerts, "count": len(alerts)})
+    alerts.extend(integration_pipeline.recent_alerts(limit))
+    unique = {}
+    for alert in alerts:
+        unique[alert.get("alert_id") or alert.get("record_id") or str(len(unique))] = alert
+    merged = sorted(unique.values(), key=lambda item: str(item.get("detected_at") or item.get("event_timestamp") or ""), reverse=True)[:limit]
+    return jsonify({"alerts": merged, "count": len(merged),
+                    "sources": ["historical_local_replay", "Kafka/Spark consumer"]})
 
 
 @app.route("/api/alerts/<alert_id>/acknowledge", methods=["POST"])
@@ -467,33 +586,76 @@ def acknowledge_episode(episode_id: str):
 @app.route("/api/graph/nodes")
 def graph_nodes():
     _ensure_pipeline()
+    if integration_pipeline.neo4j.configured:
+        status = integration_pipeline.neo4j.health()
+        if status.get("status") == "connected":
+            try:
+                return jsonify(integration_pipeline.neo4j.graph_data(_query_int("limit", 200, 1, 300)))
+            except Exception as exc:
+                return jsonify({"nodes": [], "edges": [], "stats": {}, "data_source": "neo4j",
+                                "error": f"Neo4j graph query failed: {str(exc)[:200]}"}), 503
     from backend.spark.src import graph_builder as gb
     limit = _query_int("limit", 200, 1, 300)
     nodes = gb.get_all_nodes(limit)
     edges = gb.get_all_edges(limit * 3)
     return jsonify({"nodes": nodes, "edges": edges,
-                    "stats": gb.get_graph_stats()})
+                    "stats": gb.get_graph_stats(), "data_source": "local_in_memory_fallback",
+                    "graph_note": "This response is not Neo4j-backed; configure NEO4J_URI and credentials to persist Kafka/Spark events."})
 
 
 @app.route("/api/graph/suspicious")
 def graph_suspicious():
     _ensure_pipeline()
+    if integration_pipeline.neo4j.configured and integration_pipeline.neo4j.health().get("status") == "connected":
+        try:
+            items = integration_pipeline.neo4j.suspicious_events(_query_int("limit", 100, 1, 300))
+            return jsonify({"suspicious": items, "count": len(items), "data_source": "neo4j"})
+        except Exception as exc:
+            return jsonify({"suspicious": [], "count": 0, "data_source": "neo4j",
+                            "error": f"Neo4j suspicious-event query failed: {str(exc)[:200]}"}), 503
     from backend.spark.src import graph_builder as gb
     limit = _query_int("limit", 100, 1, 300)
     sus   = gb.get_suspicious_events(limit)
-    return jsonify({"suspicious": sus, "count": len(sus)})
+    return jsonify({"suspicious": sus, "count": len(sus), "data_source": "local_in_memory_fallback"})
 
 
 @app.route("/api/graph/stats")
 def graph_stats():
     _ensure_pipeline()
+    if integration_pipeline.neo4j.configured and integration_pipeline.neo4j.health().get("status") == "connected":
+        try:
+            return jsonify(integration_pipeline.neo4j.graph_data(1)["stats"] | {"data_source": "neo4j"})
+        except Exception as exc:
+            return jsonify({"error": f"Neo4j graph query failed: {str(exc)[:200]}", "data_source": "neo4j"}), 503
     from backend.spark.src import graph_builder as gb
-    return jsonify(gb.get_graph_stats())
+    return jsonify(gb.get_graph_stats() | {"data_source": "local_in_memory_fallback"})
 
 
 @app.route("/api/graph/neighbors/<node_id>")
 def graph_neighbors(node_id: str):
     _ensure_pipeline()
+    if integration_pipeline.neo4j.configured and integration_pipeline.neo4j.health().get("status") == "connected":
+        try:
+            graph = integration_pipeline.neo4j.graph_data(800)
+            by_id = {node["id"]: node for node in graph["nodes"]}
+            selected = {node_id}
+            frontier = {node_id}
+            depth = _query_int("depth", 2, 1, 3)
+            for _ in range(depth):
+                next_frontier = set()
+                for edge in graph["edges"]:
+                    if edge["source"] in frontier:
+                        next_frontier.add(edge["target"])
+                    if edge["target"] in frontier:
+                        next_frontier.add(edge["source"])
+                next_frontier -= selected
+                selected |= next_frontier
+                frontier = next_frontier
+            nodes = [by_id[key] for key in selected if key in by_id]
+            edges = [edge for edge in graph["edges"] if edge["source"] in selected and edge["target"] in selected]
+            return jsonify({"center": node_id, "nodes": nodes, "edges": edges, "depth": depth, "data_source": "neo4j"})
+        except Exception as exc:
+            return jsonify({"error": f"Neo4j neighbor query failed: {str(exc)[:200]}", "data_source": "neo4j"}), 503
     from backend.spark.src import graph_builder as gb
     depth = _query_int("depth", 2, 1, 5)
     return jsonify(gb.get_neighbors(node_id, depth))
@@ -502,6 +664,18 @@ def graph_neighbors(node_id: str):
 @app.route("/api/graph/asset/<symbol>")
 def graph_asset(symbol: str):
     _ensure_pipeline()
+    if integration_pipeline.neo4j.configured and integration_pipeline.neo4j.health().get("status") == "connected":
+        try:
+            graph = integration_pipeline.neo4j.graph_data(1000)
+            assets = [node for node in graph["nodes"] if node["type"] == "CryptoAsset" and node["properties"].get("symbol") == symbol.upper()]
+            ids = {node["id"] for node in assets}
+            edges = [edge for edge in graph["edges"] if edge["source"] in ids or edge["target"] in ids]
+            ids.update(edge["source"] for edge in edges)
+            ids.update(edge["target"] for edge in edges)
+            nodes = [node for node in graph["nodes"] if node["id"] in ids]
+            return jsonify({"symbol": symbol.upper(), "nodes": nodes, "edges": edges, "data_source": "neo4j"})
+        except Exception as exc:
+            return jsonify({"error": f"Neo4j asset query failed: {str(exc)[:200]}", "data_source": "neo4j"}), 503
     from backend.spark.src import graph_builder as gb
     return jsonify(gb.get_asset_subgraph(symbol.upper()))
 

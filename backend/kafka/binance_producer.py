@@ -35,7 +35,6 @@ def main() -> int:
             bootstrap_servers=brokers,
             value_serializer=lambda value: json.dumps(value, separators=(",", ":")).encode("utf-8"),
             request_timeout_ms=5_000,
-            api_version_auto_timeout_ms=5_000,
             retries=3,
         )
         producer.partitions_for(topic)

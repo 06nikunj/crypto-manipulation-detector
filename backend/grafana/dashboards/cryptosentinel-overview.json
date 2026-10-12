@@ -1,0 +1,50 @@
+{
+  "uid": "cryptosentinel-pipeline",
+  "title": "CryptoSentinel · Pipeline Observability",
+  "tags": ["cryptosentinel", "kafka", "spark", "influxdb"],
+  "timezone": "utc",
+  "schemaVersion": 41,
+  "version": 1,
+  "refresh": "30s",
+  "time": {"from": "now-6h", "to": "now"},
+  "editable": false,
+  "panels": [
+    {
+      "id": 1, "title": "Processed events per window · by source", "type": "timeseries",
+      "datasource": {"type": "influxdb", "uid": "cryptosentinel-influx"},
+      "gridPos": {"h": 9, "w": 12, "x": 0, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []},
+      "targets": [{"refId": "A", "queryType": "flux", "query": "from(bucket: \"cryptosentinel\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"cryptosentinel_pipeline\" and r._field == \"processed_events\")\n  |> group(columns: [\"source\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: sum, createEmpty: false)\n  |> yield(name: \"processed_events\")"}]
+    },
+    {
+      "id": 2, "title": "Flagged predictions / rule warnings", "type": "timeseries",
+      "datasource": {"type": "influxdb", "uid": "cryptosentinel-influx"},
+      "gridPos": {"h": 9, "w": 12, "x": 12, "y": 0},
+      "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []},
+      "targets": [{"refId": "A", "queryType": "flux", "query": "from(bucket: \"cryptosentinel\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"cryptosentinel_pipeline\" and r._field == \"flagged_predictions\")\n  |> group(columns: [\"source\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: sum, createEmpty: false)\n  |> yield(name: \"flagged\")"}]
+    },
+    {
+      "id": 3, "title": "Processing latency · ms per batch", "type": "timeseries",
+      "datasource": {"type": "influxdb", "uid": "cryptosentinel-influx"},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 9},
+      "fieldConfig": {"defaults": {"unit": "ms", "min": 0}, "overrides": []},
+      "targets": [{"refId": "A", "queryType": "flux", "query": "from(bucket: \"cryptosentinel\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"cryptosentinel_pipeline\" and r._field == \"processing_latency_ms\")\n  |> group(columns: [\"source\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean_latency_ms\")"}]
+    },
+    {
+      "id": 4, "title": "Invalid / failed / dropped records", "type": "timeseries",
+      "datasource": {"type": "influxdb", "uid": "cryptosentinel-influx"},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 9},
+      "fieldConfig": {"defaults": {"unit": "short", "min": 0}, "overrides": []},
+      "targets": [{"refId": "A", "queryType": "flux", "query": "from(bucket: \"cryptosentinel\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"cryptosentinel_pipeline\" and (r._field == \"invalid_records\" or r._field == \"processing_errors\" or r._field == \"dropped_records\"))\n  |> group(columns: [\"_field\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: sum, createEmpty: false)\n  |> yield(name: \"quality_counts\")"}]
+    },
+    {
+      "id": 5, "title": "Configured dependency health (1 = up)", "type": "state-timeline",
+      "datasource": {"type": "influxdb", "uid": "cryptosentinel-influx"},
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 17},
+      "fieldConfig": {"defaults": {"min": 0, "max": 1, "mappings": [{"type": "value", "options": {"0": {"text": "down"}, "1": {"text": "up"}}}], "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "green", "value": 1}]}}, "overrides": []},
+      "targets": [{"refId": "A", "queryType": "flux", "query": "from(bucket: \"cryptosentinel\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"cryptosentinel_services\" and r._field == \"up\")\n  |> group(columns: [\"service\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"service_up\")"}]
+    }
+  ],
+  "annotations": {"list": [{"builtIn": 1, "datasource": {"type": "grafana", "uid": "-- Grafana --"}, "enable": true, "hide": true, "iconColor": "rgba(0, 211, 255, 1)", "name": "Annotations & Alerts", "type": "dashboard"}]},
+  "links": []
+}

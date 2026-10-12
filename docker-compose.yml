@@ -1,0 +1,229 @@
+name: cryptosentinel
+services:
+  kafka-storage-init:
+    image: alpine:3.22
+    user: "0:0"
+    restart: "no"
+    command: ["sh", "-c", "mkdir -p /data && chown -R 1000:1000 /data"]
+    volumes: ["kafka-data:/data"]
+
+  broker:
+    image: apache/kafka:4.1.1
+    hostname: broker
+    restart: unless-stopped
+    mem_limit: 900m
+    cpus: 1.0
+    depends_on:
+      kafka-storage-init: {condition: service_completed_successfully}
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,HOST://:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+      KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
+    ports: ["127.0.0.1:29092:29092"]
+    volumes: ["kafka-data:/var/lib/kafka/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 8s
+      retries: 12
+      start_period: 30s
+
+  kafka-init:
+    image: apache/kafka:4.1.1
+    restart: "no"
+    depends_on:
+      broker:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-ec"]
+    command:
+      - |
+        for spec in market_trades:3 processed_events:3 invalid_events:1; do
+          topic="$${spec%:*}"
+          partitions="$${spec#*:}"
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server broker:9092 --create --if-not-exists --topic "$${topic}" --partitions "$${partitions}" --replication-factor 1
+        done
+    mem_limit: 256m
+
+  neo4j:
+    build: {context: backend/neo4j, dockerfile: Dockerfile}
+    image: cryptosentinel-neo4j:5.26.31
+    hostname: neo4j
+    restart: unless-stopped
+    mem_limit: 900m
+    cpus: 1.0
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?Set NEO4J_PASSWORD in .env}
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+      NEO4J_dbms_security_auth__minimum__password__length: 8
+    ports: ["127.0.0.1:7474:7474", "127.0.0.1:7687:7687"]
+    volumes: ["neo4j-data:/data", "neo4j-logs:/logs"]
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p \"$${NEO4J_AUTH#neo4j/}\" 'RETURN 1' >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 8s
+      retries: 15
+      start_period: 45s
+
+  influxdb:
+    build: {context: backend/influxdb, dockerfile: Dockerfile}
+    image: cryptosentinel-influxdb:2.7.12
+    hostname: influxdb
+    restart: unless-stopped
+    mem_limit: 600m
+    cpus: 0.75
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME:-cryptosentinel}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD:?Set INFLUXDB_PASSWORD in .env}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG:-cryptosentinel}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET:-cryptosentinel}
+      DOCKER_INFLUXDB_INIT_RETENTION: ${INFLUXDB_RETENTION:-30d}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN:?Set INFLUXDB_TOKEN in .env}
+      GOMEMLIMIT: 512MiB
+    ports: ["127.0.0.1:8086:8086"]
+    volumes: ["influxdb-data:/var/lib/influxdb2", "influxdb-config:/etc/influxdb2"]
+    healthcheck:
+      test: ["CMD", "influx", "ping", "--host", "http://localhost:8086"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  spark:
+    build: {context: ., dockerfile: backend/spark/Dockerfile}
+    image: cryptosentinel-spark:4.2.0
+    hostname: spark
+    restart: unless-stopped
+    mem_limit: 1700m
+    cpus: 1.5
+    depends_on:
+      kafka-init: {condition: service_completed_successfully}
+    environment:
+      PYTHONPATH: /opt/cryptosentinel
+      PYTHONUNBUFFERED: "1"
+      KAFKA_BOOTSTRAP_SERVERS: broker:9092
+      KAFKA_MARKET_TOPIC: market_trades
+      KAFKA_OUTPUT_TOPIC: processed_events
+      KAFKA_DEAD_LETTER_TOPIC: invalid_events
+      KAFKA_STARTING_OFFSETS: ${KAFKA_STARTING_OFFSETS:-earliest}
+      SPARK_HEALTH_PORT: 8090
+      SPARK_MAX_OFFSETS_PER_TRIGGER: ${SPARK_MAX_OFFSETS_PER_TRIGGER:-500}
+      SPARK_CHECKPOINT_DIR: /var/lib/cryptosentinel/checkpoints
+      SPARK_WATERMARK_DELAY: ${SPARK_WATERMARK_DELAY:-30 seconds}
+      SPARK_SHUFFLE_PARTITIONS: 2
+      MODEL_PATH: /opt/cryptosentinel/models/xgboost_detector.joblib
+      SCALER_PATH: /opt/cryptosentinel/models/scaler.joblib
+      LOG_LEVEL: INFO
+    ports: ["127.0.0.1:8090:8090"]
+    volumes: ["spark-checkpoints:/var/lib/cryptosentinel/checkpoints"]
+    command:
+      - --master
+      - local[2]
+      - --driver-memory
+      - 768m
+      - --packages
+      - org.apache.spark:spark-sql-kafka-0-10_2.13:4.2.0
+      - --conf
+      - spark.jars.ivy=/tmp/.ivy2
+      - /opt/cryptosentinel/backend/streaming/spark_processor.py
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/health', timeout=2).read()"]
+      interval: 15s
+      timeout: 4s
+      retries: 12
+      start_period: 90s
+
+  api:
+    build: {context: ., dockerfile: backend/api/Dockerfile}
+    image: cryptosentinel-api:local
+    hostname: api
+    restart: unless-stopped
+    mem_limit: 900m
+    cpus: 1.25
+    depends_on:
+      kafka-init: {condition: service_completed_successfully}
+      neo4j: {condition: service_healthy}
+      influxdb: {condition: service_healthy}
+      spark: {condition: service_started}
+    environment:
+      PYTHONPATH: /app
+      PYTHONUNBUFFERED: "1"
+      PORT: 8000
+      BINANCE_WS_BASE: ${BINANCE_WS_BASE:-wss://data-stream.binance.vision}
+      KAFKA_BOOTSTRAP_SERVERS: broker:9092
+      KAFKA_MARKET_TOPIC: market_trades
+      KAFKA_OUTPUT_TOPIC: processed_events
+      KAFKA_CONSUMER_GROUP: cryptosentinel-api-v1
+      KAFKA_PRODUCER_BATCH_SIZE: ${KAFKA_PRODUCER_BATCH_SIZE:-32768}
+      KAFKA_PRODUCER_LINGER_MS: ${KAFKA_PRODUCER_LINGER_MS:-20}
+      KAFKA_CONSUMER_MAX_RECORDS: ${KAFKA_CONSUMER_MAX_RECORDS:-200}
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?Set NEO4J_PASSWORD in .env}
+      NEO4J_DATABASE: neo4j
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:?Set INFLUXDB_TOKEN in .env}
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-cryptosentinel}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-cryptosentinel}
+      SPARK_HEALTH_URL: http://spark:8090/health
+      GRAFANA_HEALTH_URL: http://grafana:3000/api/health
+      MODEL_PATH: /app/models/xgboost_detector.joblib
+      SCALER_PATH: /app/models/scaler.joblib
+    ports: ["127.0.0.1:8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3).read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  grafana:
+    build: {context: backend/grafana, dockerfile: Dockerfile}
+    image: cryptosentinel-grafana:12.4.2
+    hostname: grafana
+    restart: unless-stopped
+    mem_limit: 500m
+    cpus: 0.75
+    depends_on:
+      influxdb: {condition: service_healthy}
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_ORG: ${INFLUXDB_ORG:-cryptosentinel}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET:-cryptosentinel}
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN:?Set INFLUXDB_TOKEN in .env}
+    ports: ["127.0.0.1:3000:3000"]
+    volumes: ["grafana-data:/var/lib/grafana"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 6s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  kafka-data:
+  neo4j-data:
+  neo4j-logs:
+  influxdb-data:
+  influxdb-config:
+  grafana-data:
+  spark-checkpoints:
