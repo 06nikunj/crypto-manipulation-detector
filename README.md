@@ -7,7 +7,21 @@ The application provides two separate data paths:
 - **Live Markets:** Connects to Binance Spot's public WebSocket trade streams to display real-time trades, observed market bars, and explainable price/volume rule-based warnings.
 - **Historical Benchmark:** Uses the bundled SystemsLab–Sapienza labeled dataset, saved XGBoost artifacts, and historical replay/evaluation tools to study previously labeled market events.
 
+<<<<<<< HEAD
 > **Important:** CryptoSentinel is a research and monitoring prototype, not a trading system or a definitive manipulation detector. Live rule-based warnings are review cues, not proof of market manipulation. The historical XGBoost model is not applied to raw Binance trades because its benchmark-specific feature schema has not been validated for live data.
+=======
+## Architecture
+
+CryptoSentinel has two explicitly separate data paths: live market monitoring and historical benchmark processing.
+
+### System Architecture Diagram
+
+![CryptoSentinel System Architecture](docs/architecture.png)
+
+---
+
+## Live dashboard
+>>>>>>> 088e0ac (Add system architecture diagram)
 
 ---
 
