@@ -90,7 +90,9 @@ class LiveMarketManager:
 
     def __init__(self, ws_factory: Callable | None = None, base_url: str | None = None):
         self._ws_factory = ws_factory or self._default_ws_factory
-        self._base_url = (base_url or os.getenv("BINANCE_WS_BASE", "wss://stream.binance.com:9443")).rstrip("/")
+        # Port 443 works on networks that block Binance's legacy 9443 endpoint.
+        # Operators can still override this with BINANCE_WS_BASE.
+        self._base_url = (base_url or os.getenv("BINANCE_WS_BASE", "wss://stream.binance.com:443")).rstrip("/")
         self._lock = threading.RLock()
         self._condition = threading.Condition(self._lock)
         self._stop_event = threading.Event()

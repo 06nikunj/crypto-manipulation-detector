@@ -45,7 +45,7 @@ python -m pip install -r requirements.txt
 BINANCE_SYMBOLS=BTCUSDT,ETHUSDT,BNBUSDT PORT=5001 python -m backend.api.app
 ```
 
-Open **http://127.0.0.1:5001**, select **Connect**, and wait for actual trade messages. Keep the Terminal window open. Stop the application with **Ctrl+C**. To use the default symbols, omit `BINANCE_SYMBOLS`; the default watchlist is BTCUSDT, ETHUSDT, and BNBUSDT.
+Open **http://127.0.0.1:5001**, select **Connect**, and wait for actual trade messages. The default WebSocket endpoint uses secure port 443 for networks that block port 9443. You can override it with `BINANCE_WS_BASE` if needed. Keep the Terminal window open. Stop the application with **Ctrl+C**. To use the default symbols, omit `BINANCE_SYMBOLS`; the default watchlist is BTCUSDT, ETHUSDT, and BNBUSDT.
 
 ### Windows PowerShell
 
